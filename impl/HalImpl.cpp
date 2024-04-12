@@ -710,11 +710,6 @@ int32_t HalImpl::setLayerCompositionType(int64_t display, int64_t layer, Composi
     a2h::translate(type, hwcType);
     a2h::translate(layer, hwcLayer);
 
-    if (type == Composition::DISPLAY_DECORATION) {
-        ALOGW("%s: CompositionType %d can not support", __func__, hwcType);
-        return HWC2_ERROR_UNSUPPORTED;
-    }
-
     return mDispatch.setLayerCompositionType(mDevice, display, hwcLayer, hwcType);
 }
 
