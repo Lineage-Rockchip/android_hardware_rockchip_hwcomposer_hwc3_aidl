@@ -70,6 +70,9 @@ public:
                                            const buffer_handle_t rawHandle,
                                            buffer_handle_t& outStreamHandle,
                                            IBufferReleaser* bufReleaser) = 0;
+    std::recursive_mutex& getLock() { return mDisplayResourcesMutex; };
+private:
+    std::recursive_mutex mDisplayResourcesMutex;
 };
 
 } // namespace aidl::android::hardware::graphics::composer3::impl

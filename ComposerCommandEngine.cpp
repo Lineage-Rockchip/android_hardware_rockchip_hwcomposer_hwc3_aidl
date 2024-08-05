@@ -160,6 +160,7 @@ void ComposerCommandEngine::executeSetColorTransform(int64_t display,
 }
 
 void ComposerCommandEngine::executeSetClientTarget(int64_t display, const ClientTarget& command) {
+    std::lock_guard<std::recursive_mutex> lock(mResources->getLock());
     bool useCache = !command.buffer.handle;
     buffer_handle_t handle = useCache
                              ? nullptr
@@ -185,6 +186,7 @@ void ComposerCommandEngine::executeSetClientTarget(int64_t display, const Client
 }
 
 void ComposerCommandEngine::executeSetOutputBuffer(uint64_t display, const Buffer& buffer) {
+    std::lock_guard<std::recursive_mutex> lock(mResources->getLock());
     bool useCache = !buffer.handle;
     buffer_handle_t handle = useCache
                              ? nullptr
@@ -287,6 +289,7 @@ void ComposerCommandEngine::executeSetLayerCursorPosition(int64_t display, int64
 
 void ComposerCommandEngine::executeSetLayerBuffer(int64_t display, int64_t layer,
                                                   const Buffer& buffer) {
+    std::lock_guard<std::recursive_mutex> lock(mResources->getLock());
     bool useCache = !buffer.handle;
     buffer_handle_t handle = useCache
                              ? nullptr
@@ -316,6 +319,11 @@ void ComposerCommandEngine::executeSetLayerBuffer(int64_t display, int64_t layer
     } else {
         LOG(ERROR) << __func__ << ": getLayerBuffer err " << err;
         mWriter->setError(mCommandIndex, err);
+        ndk::ScopedFileDescriptor no_fence = ndk::ScopedFileDescriptor(-1);
+        err = mHal->setLayerBuffer(display, layer, NULL, no_fence);
+        if (err) {
+            LOG(ERROR) << __func__ << ": setLayerBuffer err " << err;
+        }
     }
     //handle from android::makeFromAidl should be deleted with native_handle_delete.
     if(handle)

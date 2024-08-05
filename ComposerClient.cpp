@@ -110,6 +110,7 @@ ndk::ScopedAStatus ComposerClient::destroyVirtualDisplay(int64_t display) {
 
 ndk::ScopedAStatus ComposerClient::executeCommands(const std::vector<DisplayCommand>& commands,
                                                    std::vector<CommandResultPayload>* results) {
+    std::lock_guard<std::recursive_mutex> lock(mResources->getLock());
     int64_t display = commands.empty() ? -1 : commands[0].display;
     DEBUG_DISPLAY_FUNC(display);
     auto err = mCommandEngine->execute(commands, results);
@@ -437,6 +438,7 @@ ndk::ScopedAStatus ComposerClient::setRefreshRateChangedCallbackDebugEnabled(int
 
 void ComposerClient::HalEventCallback::onHotplug(int64_t display, bool connected) {
     DEBUG_FUNC();
+    std::lock_guard<std::recursive_mutex> lock(mResources->getLock());
     if (connected) {
         if (mResources->hasDisplay(display)) {
             // This is a subsequent hotplug "connected" for a display. This signals a
