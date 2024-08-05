@@ -440,15 +440,16 @@ void ComposerClient::HalEventCallback::onHotplug(int64_t display, bool connected
     DEBUG_FUNC();
     std::lock_guard<std::recursive_mutex> lock(mResources->getLock());
     if (connected) {
-        if (mResources->hasDisplay(display)) {
+        if (display!=0 && mResources->hasDisplay(display)) {
             // This is a subsequent hotplug "connected" for a display. This signals a
             // display change and thus the framework may want to reallocate buffers. We
             // need to free all cached handles, since they are holding a strong reference
             // to the underlying buffers.
             cleanDisplayResources(display);
             mResources->removeDisplay(display);
-        }
-        mResources->addPhysicalDisplay(display);
+            mResources->addPhysicalDisplay(display);
+        }else if(!mResources->hasDisplay(display))
+            mResources->addPhysicalDisplay(display);
     } else {
         mResources->removeDisplay(display);
     }
