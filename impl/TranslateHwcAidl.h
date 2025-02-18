@@ -38,60 +38,59 @@ inline void translate(const T& in, U& out) {
 template <typename T, typename U>
 inline void translate(const std::vector<T>& in, std::vector<U>& out) {
     out.clear();
-    for (auto const &t : in) {
+    for (auto const& t : in) {
         U u;
         translate(t, u);
         out.emplace_back(std::move(u));
     }
 }
 
-template<>
-inline void translate(const hwc_vsync_period_change_timeline_t& in,
-                      VsyncPeriodChangeTimeline& out) {
+template <>
+inline void translate(const hwc_vsync_period_change_timeline_t& in, VsyncPeriodChangeTimeline& out) {
     out.newVsyncAppliedTimeNanos = in.newVsyncAppliedTimeNanos;
     out.refreshRequired = in.refreshRequired;
     out.refreshTimeNanos = in.refreshTimeNanos;
 }
 
-template<>
+template <>
 inline void translate(const int32_t& fd, ndk::ScopedFileDescriptor& sfd) {
     // ownership of fd is transferred to sfd
     sfd = ndk::ScopedFileDescriptor(fd);
 }
 
-template<>
+template <>
 inline void translate(const hwc_client_target_property& in, ClientTargetProperty& out) {
     translate(in.pixelFormat, out.pixelFormat);
     translate(in.dataspace, out.dataspace);
 }
 
-template<>
+template <>
 inline void translate(const HwcMountOrientation& in, common::Transform& out) {
     switch (in) {
-    case HwcMountOrientation::ROT_0:
-        out = common::Transform::NONE;
-        break;
+        case HwcMountOrientation::ROT_0:
+            out = common::Transform::NONE;
+            break;
 
-    case HwcMountOrientation::ROT_90:
-        out = common::Transform::ROT_90;
-        break;
+        case HwcMountOrientation::ROT_90:
+            out = common::Transform::ROT_90;
+            break;
 
-    case HwcMountOrientation::ROT_180:
-        out = common::Transform::ROT_180;
-        break;
+        case HwcMountOrientation::ROT_180:
+            out = common::Transform::ROT_180;
+            break;
 
-    case HwcMountOrientation::ROT_270:
-        out = common::Transform::ROT_270;
-        break;
+        case HwcMountOrientation::ROT_270:
+            out = common::Transform::ROT_270;
+            break;
 
-    default:
-        LOG(WARNING) << "unrecoganized display orientation: " << static_cast<uint32_t>(in);
-        out = common::Transform::NONE;
-        break;
+        default:
+            LOG(WARNING) << "unrecoganized display orientation: " << static_cast<uint32_t>(in);
+            out = common::Transform::NONE;
+            break;
     }
 }
 
-} // namespace h2a
+}  // namespace h2a
 
 // aidl to hwc2 conversion
 namespace a2h {
@@ -104,7 +103,7 @@ inline void translate(const T& in, U& out) {
 template <typename T, typename U>
 inline void translate(const std::vector<std::optional<T>>& in, std::vector<U>& out) {
     out.clear();
-    for (auto const &t : in) {
+    for (auto const& t : in) {
         U u;
         if (t) {
             translate(*t, u);
@@ -116,37 +115,36 @@ inline void translate(const std::vector<std::optional<T>>& in, std::vector<U>& o
 template <typename T, typename U>
 inline void translate(const std::vector<T>& in, std::vector<U>& out) {
     out.clear();
-    for (auto const &t : in) {
+    for (auto const& t : in) {
         U u;
         translate(t, u);
         out.emplace_back(std::move(u));
     }
 }
 
-template<>
+template <>
 inline void translate(const common::Rect& in, hwc_rect_t& out) {
-     out.left = in.left;
-     out.top = in.top;
-     out.right =in.right;
-     out.bottom =in.bottom;
-}
-
-template<>
-inline void translate(const common::FRect& in, hwc_frect_t& out) {
-     out.left = in.left;
-     out.top = in.top;
-     out.right =in.right;
-     out.bottom =in.bottom;
+    out.left = in.left;
+    out.top = in.top;
+    out.right = in.right;
+    out.bottom = in.bottom;
 }
 
 template <>
-inline void translate(const VsyncPeriodChangeConstraints& in,
-                      hwc_vsync_period_change_constraints_t& out) {
+inline void translate(const common::FRect& in, hwc_frect_t& out) {
+    out.left = in.left;
+    out.top = in.top;
+    out.right = in.right;
+    out.bottom = in.bottom;
+}
+
+template <>
+inline void translate(const VsyncPeriodChangeConstraints& in, hwc_vsync_period_change_constraints_t& out) {
     out.desiredTimeNanos = in.desiredTimeNanos;
     out.seamlessRequired = in.seamlessRequired;
 }
 
-template<>
+template <>
 inline void translate(const ndk::ScopedFileDescriptor& in, int32_t& out) {
     // it's not defined as const. drop the const to avoid dup
     auto& sfd = const_cast<ndk::ScopedFileDescriptor&>(in);
@@ -155,13 +153,13 @@ inline void translate(const ndk::ScopedFileDescriptor& in, int32_t& out) {
     *sfd.getR() = -1;
 }
 
-template<>
+template <>
 inline void translate(const bool& in, hwc2_vsync_t& out) {
     // HWC_VSYNC_DISABLE is 2
     out = in ? HWC2_VSYNC_ENABLE : HWC2_VSYNC_DISABLE;
 }
 
-template<>
+template <>
 inline void translate(const Color& in, hwc_color_t& out) {
     const auto floatColorToUint8Clamped = [](float val) -> uint8_t {
         const auto intVal = static_cast<uint64_t>(std::round(255.0f * val));
@@ -176,6 +174,6 @@ inline void translate(const Color& in, hwc_color_t& out) {
     out.a = floatColorToUint8Clamped(in.a);
 }
 
-} // namespace a2h
+}  // namespace a2h
 
-} // namespace aidl::android::hardware::graphics::composer3::impl
+}  // namespace aidl::android::hardware::graphics::composer3::impl

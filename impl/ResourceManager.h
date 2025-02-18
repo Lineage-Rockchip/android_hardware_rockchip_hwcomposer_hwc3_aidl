@@ -47,33 +47,27 @@ class ResourceManager : public IResourceManager {
     int32_t addPhysicalDisplay(int64_t display) override;
     int32_t addVirtualDisplay(int64_t display, uint32_t outputBufferCacheSize) override;
     int32_t removeDisplay(int64_t display) override;
-    int32_t setDisplayClientTargetCacheSize(int64_t display,
-                                            uint32_t clientTargetCacheSize) override;
+    int32_t setDisplayClientTargetCacheSize(int64_t display, uint32_t clientTargetCacheSize) override;
     int32_t getDisplayClientTargetCacheSize(int64_t display, size_t* outCacheSize) override;
     int32_t getDisplayOutputBufferCacheSize(int64_t display, size_t* outCacheSize) override;
     int32_t addLayer(int64_t display, int64_t layer, uint32_t bufferCacheSize) override;
     int32_t removeLayer(int64_t display, int64_t layer) override;
     void setDisplayMustValidateState(int64_t display, bool mustValidate) override;
     bool mustValidateDisplay(int64_t display) override;
-    int32_t getDisplayReadbackBuffer(int64_t display, const buffer_handle_t handle,
-                                     buffer_handle_t& outHandle,
+    int32_t getDisplayReadbackBuffer(int64_t display, const buffer_handle_t handle, buffer_handle_t& outHandle,
                                      IBufferReleaser* bufReleaser) override;
-    int32_t getDisplayClientTarget(int64_t display, uint32_t slot, bool fromCache,
-                                   const buffer_handle_t handle, buffer_handle_t& outHandle,
-                                   IBufferReleaser* bufReleaser) override;
-    int32_t getDisplayOutputBuffer(int64_t display, uint32_t slot, bool fromCache,
-                                   const buffer_handle_t handle, buffer_handle_t& outHandle,
-                                   IBufferReleaser* bufReleaser) override;
+    int32_t getDisplayClientTarget(int64_t display, uint32_t slot, bool fromCache, const buffer_handle_t handle,
+                                   buffer_handle_t& outHandle, IBufferReleaser* bufReleaser) override;
+    int32_t getDisplayOutputBuffer(int64_t display, uint32_t slot, bool fromCache, const buffer_handle_t handle,
+                                   buffer_handle_t& outHandle, IBufferReleaser* bufReleaser) override;
     int32_t getLayerBuffer(int64_t display, int64_t layer, uint32_t slot, bool fromCache,
-                           const buffer_handle_t rawHandle,
-                           buffer_handle_t& outBufferHandle,
+                           const buffer_handle_t rawHandle, buffer_handle_t& outBufferHandle,
                            IBufferReleaser* bufReleaser) override;
-    int32_t getLayerSidebandStream(int64_t display, int64_t layer,
-                                   const buffer_handle_t rawHandle,
-                                   buffer_handle_t& outStreamHandle,
-                                   IBufferReleaser* bufReleaser) override;
+    int32_t getLayerSidebandStream(int64_t display, int64_t layer, const buffer_handle_t rawHandle,
+                                   buffer_handle_t& outStreamHandle, IBufferReleaser* bufReleaser) override;
+
   private:
     std::unique_ptr<ComposerResources> mResources = ComposerResources::create();
 };
 
-} // namespace aidl::android::hardware::graphics::composer3::impl
+}  // namespace aidl::android::hardware::graphics::composer3::impl

@@ -19,13 +19,13 @@
 #include <aidl/android/hardware/graphics/composer3/BnComposer.h>
 #include <utils/Mutex.h>
 
-#include "include/IComposerHal.h"
 #include "ComposerClient.h"
+#include "include/IComposerHal.h"
 
 namespace aidl::android::hardware::graphics::composer3::impl {
 
 class Composer : public BnComposer {
-public:
+  public:
     Composer(std::unique_ptr<IComposerHal> hal) : mHal(std::move(hal)) {}
 
     binder_status_t dump(int fd, const char** args, uint32_t numArgs) override;
@@ -34,10 +34,10 @@ public:
     ndk::ScopedAStatus createClient(std::shared_ptr<IComposerClient>* client) override;
     ndk::ScopedAStatus getCapabilities(std::vector<Capability>* caps) override;
 
-protected:
+  protected:
     ::ndk::SpAIBinder createBinder() override;
 
-private:
+  private:
     bool waitForClientDestroyedLocked(std::unique_lock<std::mutex>& lock);
     void onClientDestroyed();
 

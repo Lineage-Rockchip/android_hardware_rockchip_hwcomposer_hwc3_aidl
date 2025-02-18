@@ -51,8 +51,7 @@ ComposerClient::~ComposerClient() {
 }
 
 // no need to check nullptr for output parameter, the aidl stub code won't pass nullptr
-ndk::ScopedAStatus ComposerClient::createLayer(int64_t display, int32_t bufferSlotCount,
-                                               int64_t* layer) {
+ndk::ScopedAStatus ComposerClient::createLayer(int64_t display, int32_t bufferSlotCount, int64_t* layer) {
     DEBUG_DISPLAY_FUNC(display);
     auto err = mHal->createLayer(display, layer);
     if (!err) {
@@ -64,10 +63,8 @@ ndk::ScopedAStatus ComposerClient::createLayer(int64_t display, int32_t bufferSl
     return TO_BINDER_STATUS(err);
 }
 
-ndk::ScopedAStatus ComposerClient::createVirtualDisplay(int32_t width, int32_t height,
-                                                        AidlPixelFormat formatHint,
-                                                        int32_t outputBufferSlotCount,
-                                                        VirtualDisplay* display) {
+ndk::ScopedAStatus ComposerClient::createVirtualDisplay(int32_t width, int32_t height, AidlPixelFormat formatHint,
+                                                        int32_t outputBufferSlotCount, VirtualDisplay* display) {
     DEBUG_FUNC();
     auto err = mHal->createVirtualDisplay(width, height, formatHint, display);
     if (!err) {
@@ -121,8 +118,7 @@ ndk::ScopedAStatus ComposerClient::getActiveConfig(int64_t display, int32_t* con
     return TO_BINDER_STATUS(err);
 }
 
-ndk::ScopedAStatus ComposerClient::getColorModes(int64_t display,
-                                                 std::vector<ColorMode>* colorModes) {
+ndk::ScopedAStatus ComposerClient::getColorModes(int64_t display, std::vector<ColorMode>* colorModes) {
     DEBUG_DISPLAY_FUNC(display);
     auto err = mHal->getColorModes(display, colorModes);
     return TO_BINDER_STATUS(err);
@@ -137,9 +133,8 @@ ndk::ScopedAStatus ComposerClient::getDataspaceSaturationMatrix(common::Dataspac
 
     auto err = mHal->getDataspaceSaturationMatrix(dataspace, matrix);
     if (err) {
-        constexpr std::array<float, 16> unit {
-                1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
-                0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
+        constexpr std::array<float, 16> unit{
+                1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
         };
         matrix->clear();
         matrix->insert(matrix->begin(), unit.begin(), unit.end());
@@ -147,15 +142,14 @@ ndk::ScopedAStatus ComposerClient::getDataspaceSaturationMatrix(common::Dataspac
     return TO_BINDER_STATUS(err);
 }
 
-ndk::ScopedAStatus ComposerClient::getDisplayAttribute(int64_t display, int32_t config,
-                                                       DisplayAttribute attribute, int32_t* value) {
+ndk::ScopedAStatus ComposerClient::getDisplayAttribute(int64_t display, int32_t config, DisplayAttribute attribute,
+                                                       int32_t* value) {
     DEBUG_DISPLAY_FUNC(display);
     auto err = mHal->getDisplayAttribute(display, config, attribute, value);
     return TO_BINDER_STATUS(err);
 }
 
-ndk::ScopedAStatus ComposerClient::getDisplayCapabilities(int64_t display,
-                                                          std::vector<DisplayCapability>* caps) {
+ndk::ScopedAStatus ComposerClient::getDisplayCapabilities(int64_t display, std::vector<DisplayCapability>* caps) {
     DEBUG_DISPLAY_FUNC(display);
     auto err = mHal->getDisplayCapabilities(display, caps);
     if (err) {
@@ -175,22 +169,19 @@ ndk::ScopedAStatus ComposerClient::getDisplayCapabilities(int64_t display,
     return TO_BINDER_STATUS(err);
 }
 
-ndk::ScopedAStatus ComposerClient::getDisplayConfigs(int64_t display,
-                                                     std::vector<int32_t>* configs) {
+ndk::ScopedAStatus ComposerClient::getDisplayConfigs(int64_t display, std::vector<int32_t>* configs) {
     DEBUG_DISPLAY_FUNC(display);
     auto err = mHal->getDisplayConfigs(display, configs);
     return TO_BINDER_STATUS(err);
 }
 
-ndk::ScopedAStatus ComposerClient::getDisplayConnectionType(int64_t display,
-                                                            DisplayConnectionType* type) {
+ndk::ScopedAStatus ComposerClient::getDisplayConnectionType(int64_t display, DisplayConnectionType* type) {
     DEBUG_DISPLAY_FUNC(display);
     auto err = mHal->getDisplayConnectionType(display, type);
     return TO_BINDER_STATUS(err);
 }
 
-ndk::ScopedAStatus ComposerClient::getDisplayIdentificationData(int64_t display,
-                                                                DisplayIdentification* id) {
+ndk::ScopedAStatus ComposerClient::getDisplayIdentificationData(int64_t display, DisplayIdentification* id) {
     DEBUG_DISPLAY_FUNC(display);
     auto err = mHal->getDisplayIdentificationData(display, id);
     return TO_BINDER_STATUS(err);
@@ -208,23 +199,21 @@ ndk::ScopedAStatus ComposerClient::getDisplayVsyncPeriod(int64_t display, int32_
     return TO_BINDER_STATUS(err);
 }
 
-ndk::ScopedAStatus ComposerClient::getDisplayedContentSample(int64_t display, int64_t maxFrames,
-                                                             int64_t timestamp,
+ndk::ScopedAStatus ComposerClient::getDisplayedContentSample(int64_t display, int64_t maxFrames, int64_t timestamp,
                                                              DisplayContentSample* samples) {
     DEBUG_DISPLAY_FUNC(display);
     auto err = mHal->getDisplayedContentSample(display, maxFrames, timestamp, samples);
     return TO_BINDER_STATUS(err);
 }
 
-ndk::ScopedAStatus ComposerClient::getDisplayedContentSamplingAttributes(
-        int64_t display, DisplayContentSamplingAttributes* attrs) {
+ndk::ScopedAStatus ComposerClient::getDisplayedContentSamplingAttributes(int64_t display,
+                                                                         DisplayContentSamplingAttributes* attrs) {
     DEBUG_DISPLAY_FUNC(display);
     auto err = mHal->getDisplayedContentSamplingAttributes(display, attrs);
     return TO_BINDER_STATUS(err);
 }
 
-ndk::ScopedAStatus ComposerClient::getDisplayPhysicalOrientation(int64_t display,
-                                                                 common::Transform* orientation) {
+ndk::ScopedAStatus ComposerClient::getDisplayPhysicalOrientation(int64_t display, common::Transform* orientation) {
     DEBUG_DISPLAY_FUNC(display);
     auto err = mHal->getDisplayPhysicalOrientation(display, orientation);
     return TO_BINDER_STATUS(err);
@@ -248,22 +237,19 @@ ndk::ScopedAStatus ComposerClient::getMaxVirtualDisplayCount(int32_t* count) {
     return TO_BINDER_STATUS(err);
 }
 
-ndk::ScopedAStatus ComposerClient::getPerFrameMetadataKeys(int64_t display,
-                                                           std::vector<PerFrameMetadataKey>* keys) {
+ndk::ScopedAStatus ComposerClient::getPerFrameMetadataKeys(int64_t display, std::vector<PerFrameMetadataKey>* keys) {
     DEBUG_DISPLAY_FUNC(display);
     auto err = mHal->getPerFrameMetadataKeys(display, keys);
     return TO_BINDER_STATUS(err);
 }
 
-ndk::ScopedAStatus ComposerClient::getReadbackBufferAttributes(int64_t display,
-                                                               ReadbackBufferAttributes* attrs) {
+ndk::ScopedAStatus ComposerClient::getReadbackBufferAttributes(int64_t display, ReadbackBufferAttributes* attrs) {
     DEBUG_DISPLAY_FUNC(display);
     auto err = mHal->getReadbackBufferAttributes(display, attrs);
     return TO_BINDER_STATUS(err);
 }
 
-ndk::ScopedAStatus ComposerClient::getReadbackBufferFence(int64_t display,
-                                                          ndk::ScopedFileDescriptor* acquireFence) {
+ndk::ScopedAStatus ComposerClient::getReadbackBufferFence(int64_t display, ndk::ScopedFileDescriptor* acquireFence) {
     DEBUG_DISPLAY_FUNC(display);
     auto err = mHal->getReadbackBufferFence(display, acquireFence);
     return TO_BINDER_STATUS(err);
@@ -276,8 +262,7 @@ ndk::ScopedAStatus ComposerClient::getRenderIntents(int64_t display, ColorMode m
     return TO_BINDER_STATUS(err);
 }
 
-ndk::ScopedAStatus ComposerClient::getSupportedContentTypes(int64_t display,
-                                                            std::vector<ContentType>* types) {
+ndk::ScopedAStatus ComposerClient::getSupportedContentTypes(int64_t display, std::vector<ContentType>* types) {
     DEBUG_DISPLAY_FUNC(display);
     auto err = mHal->getSupportedContentTypes(display, types);
     return TO_BINDER_STATUS(err);
@@ -302,8 +287,7 @@ ndk::ScopedAStatus ComposerClient::getDisplayDecorationSupport(
     return TO_BINDER_STATUS(err);
 }
 
-ndk::ScopedAStatus ComposerClient::registerCallback(
-        const std::shared_ptr<IComposerCallback>& callback) {
+ndk::ScopedAStatus ComposerClient::registerCallback(const std::shared_ptr<IComposerCallback>& callback) {
     DEBUG_FUNC();
     // no locking as we require this function to be called only once
     mHalEventCallback = std::make_unique<HalEventCallback>(mHal, mResources.get(), callback);
@@ -317,9 +301,9 @@ ndk::ScopedAStatus ComposerClient::setActiveConfig(int64_t display, int32_t conf
     return TO_BINDER_STATUS(err);
 }
 
-ndk::ScopedAStatus ComposerClient::setActiveConfigWithConstraints(
-        int64_t display, int32_t config, const VsyncPeriodChangeConstraints& constraints,
-        VsyncPeriodChangeTimeline* timeline) {
+ndk::ScopedAStatus ComposerClient::setActiveConfigWithConstraints(int64_t display, int32_t config,
+                                                                  const VsyncPeriodChangeConstraints& constraints,
+                                                                  VsyncPeriodChangeTimeline* timeline) {
     DEBUG_DISPLAY_FUNC(display);
     auto err = mHal->setActiveConfigWithConstraints(display, config, constraints, timeline);
     return TO_BINDER_STATUS(err);
@@ -350,9 +334,8 @@ ndk::ScopedAStatus ComposerClient::getHdrConversionCapabilities(
     return TO_BINDER_STATUS(err);
 }
 
-ndk::ScopedAStatus ComposerClient::setHdrConversionStrategy(
-        const common::HdrConversionStrategy& hdrConversionStrategy,
-        common::Hdr* preferredHdrOutputType) {
+ndk::ScopedAStatus ComposerClient::setHdrConversionStrategy(const common::HdrConversionStrategy& hdrConversionStrategy,
+                                                            common::Hdr* preferredHdrOutputType) {
     DEBUG_FUNC();
     auto err = mHal->setHdrConversionStrategy(hdrConversionStrategy, preferredHdrOutputType);
     return TO_BINDER_STATUS(err);
@@ -370,8 +353,7 @@ ndk::ScopedAStatus ComposerClient::setClientTargetSlotCount(int64_t display, int
     return TO_BINDER_STATUS(err);
 }
 
-ndk::ScopedAStatus ComposerClient::setColorMode(int64_t display, ColorMode mode,
-                                                RenderIntent intent) {
+ndk::ScopedAStatus ComposerClient::setColorMode(int64_t display, ColorMode mode, RenderIntent intent) {
     DEBUG_DISPLAY_FUNC(display);
     auto err = mHal->setColorMode(display, mode, intent);
     return TO_BINDER_STATUS(err);
@@ -383,8 +365,9 @@ ndk::ScopedAStatus ComposerClient::setContentType(int64_t display, ContentType t
     return TO_BINDER_STATUS(err);
 }
 
-ndk::ScopedAStatus ComposerClient::setDisplayedContentSamplingEnabled(
-        int64_t display, bool enable, FormatColorComponent componentMask, int64_t maxFrames) {
+ndk::ScopedAStatus ComposerClient::setDisplayedContentSamplingEnabled(int64_t display, bool enable,
+                                                                      FormatColorComponent componentMask,
+                                                                      int64_t maxFrames) {
     DEBUG_DISPLAY_FUNC(display);
     auto err = mHal->setDisplayedContentSamplingEnabled(display, enable, componentMask, maxFrames);
     return TO_BINDER_STATUS(err);
@@ -396,22 +379,19 @@ ndk::ScopedAStatus ComposerClient::setPowerMode(int64_t display, PowerMode mode)
     return TO_BINDER_STATUS(err);
 }
 
-ndk::ScopedAStatus ComposerClient::setReadbackBuffer(
-        int64_t display, const AidlNativeHandle& aidlBuffer,
-        const ndk::ScopedFileDescriptor& releaseFence) {
+ndk::ScopedAStatus ComposerClient::setReadbackBuffer(int64_t display, const AidlNativeHandle& aidlBuffer,
+                                                     const ndk::ScopedFileDescriptor& releaseFence) {
     DEBUG_DISPLAY_FUNC(display);
     buffer_handle_t readbackBuffer;
     // Note ownership of the buffer is not passed to resource manager.
     buffer_handle_t buffer = ::android::makeFromAidl(aidlBuffer);
     auto bufReleaser = mResources->createReleaser(true /* isBuffer */);
-    auto err = mResources->getDisplayReadbackBuffer(display, buffer,
-                                                    readbackBuffer, bufReleaser.get());
+    auto err = mResources->getDisplayReadbackBuffer(display, buffer, readbackBuffer, bufReleaser.get());
     if (!err) {
         err = mHal->setReadbackBuffer(display, readbackBuffer, releaseFence);
     }
     //handle from android::makeFromAidl should be deleted with native_handle_delete.
-    if(buffer)
-        native_handle_delete((native_handle_t*)buffer);
+    if (buffer) native_handle_delete((native_handle_t*)buffer);
     return TO_BINDER_STATUS(err);
 }
 
@@ -427,8 +407,7 @@ ndk::ScopedAStatus ComposerClient::setIdleTimerEnabled(int64_t display, int32_t 
     return TO_BINDER_STATUS(err);
 }
 
-ndk::ScopedAStatus ComposerClient::setRefreshRateChangedCallbackDebugEnabled(int64_t display,
-                                                                             bool enabled) {
+ndk::ScopedAStatus ComposerClient::setRefreshRateChangedCallbackDebugEnabled(int64_t display, bool enabled) {
     DEBUG_DISPLAY_FUNC(display);
     auto err = mHal->setRefreshRateChangedCallbackDebugEnabled(display, enabled);
     return TO_BINDER_STATUS(err);
@@ -438,7 +417,7 @@ void ComposerClient::HalEventCallback::onHotplug(int64_t display, bool connected
     DEBUG_FUNC();
     std::lock_guard<std::recursive_mutex> lock(mResources->getLock());
     if (connected) {
-        if (display!=0 && mResources->hasDisplay(display)) {
+        if (display != 0 && mResources->hasDisplay(display)) {
             // This is a subsequent hotplug "connected" for a display. This signals a
             // display change and thus the framework may want to reallocate buffers. We
             // need to free all cached handles, since they are holding a strong reference
@@ -446,7 +425,7 @@ void ComposerClient::HalEventCallback::onHotplug(int64_t display, bool connected
             cleanDisplayResources(display);
             mResources->removeDisplay(display);
             mResources->addPhysicalDisplay(display);
-        }else if(!mResources->hasDisplay(display))
+        } else if (!mResources->hasDisplay(display))
             mResources->addPhysicalDisplay(display);
     } else {
         mResources->removeDisplay(display);
@@ -467,8 +446,7 @@ void ComposerClient::HalEventCallback::onRefresh(int64_t display) {
     }
 }
 
-void ComposerClient::HalEventCallback::onVsync(int64_t display, int64_t timestamp,
-                                               int32_t vsyncPeriodNanos) {
+void ComposerClient::HalEventCallback::onVsync(int64_t display, int64_t timestamp, int32_t vsyncPeriodNanos) {
     DEBUG_FUNC();
     auto ret = mCallback->onVsync(display, timestamp, vsyncPeriodNanos);
     if (!ret.isOk()) {
@@ -476,8 +454,8 @@ void ComposerClient::HalEventCallback::onVsync(int64_t display, int64_t timestam
     }
 }
 
-void ComposerClient::HalEventCallback::onVsyncPeriodTimingChanged(
-        int64_t display, const VsyncPeriodChangeTimeline& timeline) {
+void ComposerClient::HalEventCallback::onVsyncPeriodTimingChanged(int64_t display,
+                                                                  const VsyncPeriodChangeTimeline& timeline) {
     DEBUG_FUNC();
     auto ret = mCallback->onVsyncPeriodTimingChanged(display, timeline);
     if (!ret.isOk()) {
@@ -512,18 +490,17 @@ void ComposerClient::HalEventCallback::cleanDisplayResources(int64_t display) {
             buffer_handle_t outHandle;
             auto bufReleaser = mResources->createReleaser(true /* isBuffer */);
             err = mResources->getDisplayClientTarget(display, slot, /*useCache*/ true,
-                                                    /*rawHandle*/ nullptr, outHandle,
-                                                    bufReleaser.get());
+                                                     /*rawHandle*/ nullptr, outHandle, bufReleaser.get());
             if (err) {
                 continue;
             }
             const std::vector<common::Rect> damage;
-            ndk::ScopedFileDescriptor fence; // empty fence
+            ndk::ScopedFileDescriptor fence;  // empty fence
             common::Dataspace dataspace = common::Dataspace::UNKNOWN;
             err = mHal->setClientTarget(display, outHandle, fence, dataspace, damage);
             if (err) {
-                LOG(ERROR) << "Can't clean slot " << slot
-                           << " of the client target buffer cache for display" << display;
+                LOG(ERROR) << "Can't clean slot " << slot << " of the client target buffer cache for display"
+                           << display;
             }
         }
     } else {
@@ -538,16 +515,14 @@ void ComposerClient::HalEventCallback::cleanDisplayResources(int64_t display) {
             buffer_handle_t outputBuffer;
             auto bufReleaser = mResources->createReleaser(true /* isBuffer */);
             err = mResources->getDisplayOutputBuffer(display, slot, /*useCache*/ true,
-                                                    /*rawHandle*/ nullptr, outputBuffer,
-                                                    bufReleaser.get());
+                                                     /*rawHandle*/ nullptr, outputBuffer, bufReleaser.get());
             if (err) {
                 continue;
             }
             ndk::ScopedFileDescriptor emptyFd;
             err = mHal->setOutputBuffer(display, outputBuffer, /*fence*/ emptyFd);
             if (err) {
-                LOG(ERROR) << "Can't clean slot " << slot
-                           << " of the output buffer cache for display " << display;
+                LOG(ERROR) << "Can't clean slot " << slot << " of the output buffer cache for display " << display;
             }
         }
     } else {
@@ -587,9 +562,8 @@ void ComposerClient::destroyResources() {
             std::vector<int32_t> requestMasks;
             ClientTargetProperty clientTargetProperty;
             DimmingStage dimmingStage;
-            mHal->validateDisplay(display, &changedLayers, &compositionTypes, &displayRequestMask,
-                                  &requestedLayers, &requestMasks, &clientTargetProperty,
-                                  &dimmingStage);
+            mHal->validateDisplay(display, &changedLayers, &compositionTypes, &displayRequestMask, &requestedLayers,
+                                  &requestMasks, &clientTargetProperty, &dimmingStage);
             mHal->acceptDisplayChanges(display);
 
             ndk::ScopedFileDescriptor presentFence;
@@ -607,4 +581,4 @@ void ComposerClient::destroyResources() {
     return binder;
 }
 
-} // namespace aidl::android::hardware::graphics::composer3::impl
+}  // namespace aidl::android::hardware::graphics::composer3::impl

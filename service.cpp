@@ -25,9 +25,9 @@
 using aidl::android::hardware::graphics::composer3::impl::Composer;
 using aidl::android::hardware::graphics::composer3::impl::IComposerHal;
 
+using android::sp;
 using android::base::InitLogging;
 using android::base::StderrLogger;
-using android::sp;
 
 int main(int /*argc*/, char* argv[]) {
     InitLogging(argv, android::base::LogdLogger(android::base::SYSTEM));
@@ -47,8 +47,7 @@ int main(int /*argc*/, char* argv[]) {
     CHECK(composer != nullptr);
 
     const std::string instance = std::string() + Composer::descriptor + "/default";
-    binder_status_t status =
-            AServiceManager_addService(composer->asBinder().get(), instance.c_str());
+    binder_status_t status = AServiceManager_addService(composer->asBinder().get(), instance.c_str());
     CHECK(status == STATUS_OK);
 
     // Thread pool for vendor libbinder for internal vendor services
@@ -58,7 +57,7 @@ int main(int /*argc*/, char* argv[]) {
     // Thread pool for system libbinder (via libbinder_ndk) for aidl services
     // IComposer and IDisplay
 #ifndef USE_HWC_PROXY_SERVICE
-	// If use hwc proxy service, ABinderProcess already init on drmhwc2.
+    // If use hwc proxy service, ABinderProcess already init on drmhwc2.
     ABinderProcess_setThreadPoolMaxThreadCount(5);
     ABinderProcess_startThreadPool();
 #endif

@@ -28,24 +28,23 @@ namespace aidl::android::hardware::graphics::composer3::impl {
         }                                                                        \
     } while (0)
 
-#define DISPATCH_LAYER_COMMAND_SIMPLE(display, layerCmd, field, funcName)     \
-    do {                                                                      \
-        dispatchLayerCommand(display, layerCmd.layer, #field, layerCmd.field, \
-                             &IComposerHal::setLayer##funcName);              \
+#define DISPATCH_LAYER_COMMAND_SIMPLE(display, layerCmd, field, funcName)                                         \
+    do {                                                                                                          \
+        dispatchLayerCommand(display, layerCmd.layer, #field, layerCmd.field, &IComposerHal::setLayer##funcName); \
     } while (0)
 
-#define DISPATCH_DISPLAY_COMMAND(displayCmd, field, funcName)                \
-    do {                                                                     \
-        if (displayCmd.field) {                                              \
-            execute##funcName(displayCmd.display, *displayCmd.field);        \
-        }                                                                    \
+#define DISPATCH_DISPLAY_COMMAND(displayCmd, field, funcName)         \
+    do {                                                              \
+        if (displayCmd.field) {                                       \
+            execute##funcName(displayCmd.display, *displayCmd.field); \
+        }                                                             \
     } while (0)
 
-#define DISPATCH_DISPLAY_BOOL_COMMAND(displayCmd, field, funcName)           \
-    do {                                                                     \
-        if (displayCmd.field) {                                              \
-            execute##funcName(displayCmd.display);                           \
-        }                                                                    \
+#define DISPATCH_DISPLAY_BOOL_COMMAND(displayCmd, field, funcName) \
+    do {                                                           \
+        if (displayCmd.field) {                                    \
+            execute##funcName(displayCmd.display);                 \
+        }                                                          \
     } while (0)
 
 #define DISPATCH_DISPLAY_BOOL_COMMAND_AND_DATA(displayCmd, field, data, funcName) \
@@ -69,8 +68,7 @@ int32_t ComposerCommandEngine::execute(const std::vector<DisplayCommand>& comman
         ++mCommandIndex;
         // The input commands could have 2+ commands for the same display.
         // If the first has pending brightness change, the second presentDisplay will apply it.
-        if (command.validateDisplay || command.presentDisplay ||
-            command.presentOrValidateDisplay) {
+        if (command.validateDisplay || command.presentDisplay || command.presentOrValidateDisplay) {
             displaysPendingBrightenssChange.erase(command.display);
         } else if (command.brightness) {
             displaysPendingBrightenssChange.insert(command.display);
@@ -94,8 +92,7 @@ void ComposerCommandEngine::dispatchDisplayCommand(const DisplayCommand& command
     DISPATCH_DISPLAY_COMMAND(command, colorTransformMatrix, SetColorTransform);
     DISPATCH_DISPLAY_COMMAND(command, clientTarget, SetClientTarget);
     DISPATCH_DISPLAY_COMMAND(command, virtualDisplayOutputBuffer, SetOutputBuffer);
-    DISPATCH_DISPLAY_BOOL_COMMAND_AND_DATA(command, validateDisplay, expectedPresentTime,
-                                           ValidateDisplay);
+    DISPATCH_DISPLAY_BOOL_COMMAND_AND_DATA(command, validateDisplay, expectedPresentTime, ValidateDisplay);
     DISPATCH_DISPLAY_BOOL_COMMAND(command, acceptDisplayChanges, AcceptDisplayChanges);
     DISPATCH_DISPLAY_BOOL_COMMAND(command, presentDisplay, PresentDisplay);
     DISPATCH_DISPLAY_BOOL_COMMAND_AND_DATA(command, presentOrValidateDisplay, expectedPresentTime,
@@ -130,13 +127,10 @@ int32_t ComposerCommandEngine::executeValidateDisplayInternal(int64_t display) {
     uint32_t displayRequestMask = 0x0;
     std::vector<int64_t> requestedLayers;
     std::vector<int32_t> requestMasks;
-    ClientTargetProperty clientTargetProperty{common::PixelFormat::RGBA_8888,
-                                              common::Dataspace::UNKNOWN};
+    ClientTargetProperty clientTargetProperty{common::PixelFormat::RGBA_8888, common::Dataspace::UNKNOWN};
     DimmingStage dimmingStage;
-    auto err =
-            mHal->validateDisplay(display, &changedLayers, &compositionTypes, &displayRequestMask,
-                                  &requestedLayers, &requestMasks, &clientTargetProperty,
-                                  &dimmingStage);
+    auto err = mHal->validateDisplay(display, &changedLayers, &compositionTypes, &displayRequestMask, &requestedLayers,
+                                     &requestMasks, &clientTargetProperty, &dimmingStage);
     mResources->setDisplayMustValidateState(display, false);
     if (!err) {
         mWriter->setChangedCompositionTypes(display, changedLayers, compositionTypes);
@@ -150,8 +144,7 @@ int32_t ComposerCommandEngine::executeValidateDisplayInternal(int64_t display) {
     return err;
 }
 
-void ComposerCommandEngine::executeSetColorTransform(int64_t display,
-                                                     const std::vector<float>& matrix) {
+void ComposerCommandEngine::executeSetColorTransform(int64_t display, const std::vector<float>& matrix) {
     auto err = mHal->setColorTransform(display, matrix);
     if (err) {
         LOG(ERROR) << __func__ << ": err " << err;
@@ -162,16 +155,13 @@ void ComposerCommandEngine::executeSetColorTransform(int64_t display,
 void ComposerCommandEngine::executeSetClientTarget(int64_t display, const ClientTarget& command) {
     std::lock_guard<std::recursive_mutex> lock(mResources->getLock());
     bool useCache = !command.buffer.handle;
-    buffer_handle_t handle = useCache
-                             ? nullptr
-                             : ::android::makeFromAidl(*command.buffer.handle);
+    buffer_handle_t handle = useCache ? nullptr : ::android::makeFromAidl(*command.buffer.handle);
     buffer_handle_t clientTarget;
     auto bufferReleaser = mResources->createReleaser(true);
-    auto err = mResources->getDisplayClientTarget(display, command.buffer.slot, useCache, handle,
-                                                  clientTarget, bufferReleaser.get());
+    auto err = mResources->getDisplayClientTarget(display, command.buffer.slot, useCache, handle, clientTarget,
+                                                  bufferReleaser.get());
     if (!err) {
-        err = mHal->setClientTarget(display, clientTarget, command.buffer.fence,
-                                    command.dataspace, command.damage);
+        err = mHal->setClientTarget(display, clientTarget, command.buffer.fence, command.dataspace, command.damage);
         if (err) {
             LOG(ERROR) << __func__ << " setClientTarget: err " << err;
             mWriter->setError(mCommandIndex, err);
@@ -181,20 +171,17 @@ void ComposerCommandEngine::executeSetClientTarget(int64_t display, const Client
         mWriter->setError(mCommandIndex, err);
     }
     //handle from android::makeFromAidl should be deleted with native_handle_delete.
-    if(handle)
-        native_handle_delete((native_handle_t*)handle);
+    if (handle) native_handle_delete((native_handle_t*)handle);
 }
 
 void ComposerCommandEngine::executeSetOutputBuffer(uint64_t display, const Buffer& buffer) {
     std::lock_guard<std::recursive_mutex> lock(mResources->getLock());
     bool useCache = !buffer.handle;
-    buffer_handle_t handle = useCache
-                             ? nullptr
-                             : ::android::makeFromAidl(*buffer.handle);
+    buffer_handle_t handle = useCache ? nullptr : ::android::makeFromAidl(*buffer.handle);
     buffer_handle_t outputBuffer;
     auto bufferReleaser = mResources->createReleaser(true);
-    auto err = mResources->getDisplayOutputBuffer(display, buffer.slot, useCache, handle,
-                                                  outputBuffer, bufferReleaser.get());
+    auto err = mResources->getDisplayOutputBuffer(display, buffer.slot, useCache, handle, outputBuffer,
+                                                  bufferReleaser.get());
     if (!err) {
         err = mHal->setOutputBuffer(display, outputBuffer, buffer.fence);
         if (err) {
@@ -206,8 +193,7 @@ void ComposerCommandEngine::executeSetOutputBuffer(uint64_t display, const Buffe
         mWriter->setError(mCommandIndex, err);
     }
     //handle from android::makeFromAidl should be deleted with native_handle_delete.
-    if(handle)
-        native_handle_delete((native_handle_t*)handle);
+    if (handle) native_handle_delete((native_handle_t*)handle);
 }
 
 void ComposerCommandEngine::executeSetExpectedPresentTimeInternal(
@@ -215,14 +201,13 @@ void ComposerCommandEngine::executeSetExpectedPresentTimeInternal(
     mHal->setExpectedPresentTime(display, expectedPresentTime);
 }
 
-void ComposerCommandEngine::executeValidateDisplay(
-        int64_t display, const std::optional<ClockMonotonicTimestamp> expectedPresentTime) {
+void ComposerCommandEngine::executeValidateDisplay(int64_t display,
+                                                   const std::optional<ClockMonotonicTimestamp> expectedPresentTime) {
     executeSetExpectedPresentTimeInternal(display, expectedPresentTime);
     executeValidateDisplayInternal(display);
 }
 
-void ComposerCommandEngine::executeSetDisplayBrightness(uint64_t display,
-                                        const DisplayBrightness& command) {
+void ComposerCommandEngine::executeSetDisplayBrightness(uint64_t display, const DisplayBrightness& command) {
     auto err = mHal->setDisplayBrightness(display, command.brightness);
     if (err) {
         LOG(ERROR) << __func__ << ": err " << err;
@@ -274,7 +259,7 @@ int ComposerCommandEngine::executePresentDisplay(int64_t display) {
 }
 
 void ComposerCommandEngine::executeSetLayerCursorPosition(int64_t display, int64_t layer,
-                                       const common::Point& cursorPosition) {
+                                                          const common::Point& cursorPosition) {
     auto err = mHal->setLayerCursorPosition(display, layer, cursorPosition.x, cursorPosition.y);
     if (err) {
         LOG(ERROR) << __func__ << ": err " << err;
@@ -287,22 +272,19 @@ void ComposerCommandEngine::executeSetLayerCursorPosition(int64_t display, int64
 #define RK_BUFFER_USE_CACHE_FLAG 1
 #define RK_BUFFER_USE_UNCACHE_FLAG (1 << 1)
 
-void ComposerCommandEngine::executeSetLayerBuffer(int64_t display, int64_t layer,
-                                                  const Buffer& buffer) {
+void ComposerCommandEngine::executeSetLayerBuffer(int64_t display, int64_t layer, const Buffer& buffer) {
     std::lock_guard<std::recursive_mutex> lock(mResources->getLock());
     bool useCache = !buffer.handle;
-    buffer_handle_t handle = useCache
-                             ? nullptr
-                             : ::android::makeFromAidl(*buffer.handle);
+    buffer_handle_t handle = useCache ? nullptr : ::android::makeFromAidl(*buffer.handle);
     buffer_handle_t hwcBuffer;
     auto bufferReleaser = mResources->createReleaser(true);
-    auto err = mResources->getLayerBuffer(display, layer, buffer.slot, useCache,
-                                          handle, hwcBuffer, bufferReleaser.get());
+    auto err =
+            mResources->getLayerBuffer(display, layer, buffer.slot, useCache, handle, hwcBuffer, bufferReleaser.get());
     if (!err) {
         int32_t cache_slot_mask = ((buffer.slot & 0xff) << RK_BUFFER_SLOT_SHIFT);
-        if(useCache){
+        if (useCache) {
             cache_slot_mask |= (RK_BUFFER_USE_CACHE_FLAG << RK_BUFFER_CACHE_SHIFT);
-        }else{
+        } else {
             cache_slot_mask |= (RK_BUFFER_USE_UNCACHE_FLAG << RK_BUFFER_CACHE_SHIFT);
         }
         ndk::ScopedFileDescriptor fd_mask = ndk::ScopedFileDescriptor(cache_slot_mask * (-1));
@@ -326,12 +308,11 @@ void ComposerCommandEngine::executeSetLayerBuffer(int64_t display, int64_t layer
         }
     }
     //handle from android::makeFromAidl should be deleted with native_handle_delete.
-    if(handle)
-        native_handle_delete((native_handle_t*)handle);
+    if (handle) native_handle_delete((native_handle_t*)handle);
 }
 
 void ComposerCommandEngine::executeSetLayerSurfaceDamage(int64_t display, int64_t layer,
-                              const std::vector<std::optional<common::Rect>>& damage) {
+                                                         const std::vector<std::optional<common::Rect>>& damage) {
     auto err = mHal->setLayerSurfaceDamage(display, layer, damage);
     if (err) {
         LOG(ERROR) << __func__ << ": err " << err;
@@ -348,8 +329,7 @@ void ComposerCommandEngine::executeSetLayerBlendMode(int64_t display, int64_t la
     }
 }
 
-void ComposerCommandEngine::executeSetLayerColor(int64_t display, int64_t layer,
-                                                 const Color& color) {
+void ComposerCommandEngine::executeSetLayerColor(int64_t display, int64_t layer, const Color& color) {
     auto err = mHal->setLayerColor(display, layer, color);
     if (err) {
         LOG(ERROR) << __func__ << ": err " << err;
@@ -375,8 +355,7 @@ void ComposerCommandEngine::executeSetLayerDataspace(int64_t display, int64_t la
     }
 }
 
-void ComposerCommandEngine::executeSetLayerDisplayFrame(int64_t display, int64_t layer,
-                                                        const common::Rect& rect) {
+void ComposerCommandEngine::executeSetLayerDisplayFrame(int64_t display, int64_t layer, const common::Rect& rect) {
     auto err = mHal->setLayerDisplayFrame(display, layer, rect);
     if (err) {
         LOG(ERROR) << __func__ << ": err " << err;
@@ -384,8 +363,7 @@ void ComposerCommandEngine::executeSetLayerDisplayFrame(int64_t display, int64_t
     }
 }
 
-void ComposerCommandEngine::executeSetLayerPlaneAlpha(int64_t display, int64_t layer,
-                                                      const PlaneAlpha& planeAlpha) {
+void ComposerCommandEngine::executeSetLayerPlaneAlpha(int64_t display, int64_t layer, const PlaneAlpha& planeAlpha) {
     auto err = mHal->setLayerPlaneAlpha(display, layer, planeAlpha.alpha);
     if (err) {
         LOG(ERROR) << __func__ << ": err " << err;
@@ -394,16 +372,15 @@ void ComposerCommandEngine::executeSetLayerPlaneAlpha(int64_t display, int64_t l
 }
 
 void ComposerCommandEngine::executeSetLayerSidebandStream(int64_t display, int64_t layer,
-                                                 const AidlNativeHandle& sidebandStream) {
+                                                          const AidlNativeHandle& sidebandStream) {
     buffer_handle_t handle = ::android::makeFromAidl(sidebandStream);
     buffer_handle_t stream;
 
     auto bufferReleaser = mResources->createReleaser(false);
-    auto err = mResources->getLayerSidebandStream(display, layer, handle,
-                                                  stream, bufferReleaser.get());
+    auto err = mResources->getLayerSidebandStream(display, layer, handle, stream, bufferReleaser.get());
     //-----------------------rk code----------
     if (err == 0) {
-    //----------------------------------------
+        //----------------------------------------
         err = mHal->setLayerSidebandStream(display, layer, stream);
     }
     if (err) {
@@ -411,12 +388,10 @@ void ComposerCommandEngine::executeSetLayerSidebandStream(int64_t display, int64
         mWriter->setError(mCommandIndex, err);
     }
     //handle from android::makeFromAidl should be deleted with native_handle_delete.
-    if(handle)
-        native_handle_delete((native_handle_t*)handle);
+    if (handle) native_handle_delete((native_handle_t*)handle);
 }
 
-void ComposerCommandEngine::executeSetLayerSourceCrop(int64_t display, int64_t layer,
-                                                      const common::FRect& sourceCrop) {
+void ComposerCommandEngine::executeSetLayerSourceCrop(int64_t display, int64_t layer, const common::FRect& sourceCrop) {
     auto err = mHal->setLayerSourceCrop(display, layer, sourceCrop);
     if (err) {
         LOG(ERROR) << __func__ << ": err " << err;
@@ -433,8 +408,8 @@ void ComposerCommandEngine::executeSetLayerTransform(int64_t display, int64_t la
     }
 }
 
-void ComposerCommandEngine::executeSetLayerVisibleRegion(int64_t display, int64_t layer,
-                          const std::vector<std::optional<common::Rect>>& visibleRegion) {
+void ComposerCommandEngine::executeSetLayerVisibleRegion(
+        int64_t display, int64_t layer, const std::vector<std::optional<common::Rect>>& visibleRegion) {
     auto err = mHal->setLayerVisibleRegion(display, layer, visibleRegion);
     if (err) {
         LOG(ERROR) << __func__ << ": err " << err;
@@ -442,8 +417,7 @@ void ComposerCommandEngine::executeSetLayerVisibleRegion(int64_t display, int64_
     }
 }
 
-void ComposerCommandEngine::executeSetLayerZOrder(int64_t display, int64_t layer,
-                                                  const ZOrder& zOrder) {
+void ComposerCommandEngine::executeSetLayerZOrder(int64_t display, int64_t layer, const ZOrder& zOrder) {
     auto err = mHal->setLayerZOrder(display, layer, zOrder.z);
     if (err) {
         LOG(ERROR) << __func__ << ": err " << err;
@@ -451,8 +425,8 @@ void ComposerCommandEngine::executeSetLayerZOrder(int64_t display, int64_t layer
     }
 }
 
-void ComposerCommandEngine::executeSetLayerPerFrameMetadata(int64_t display, int64_t layer,
-                const std::vector<std::optional<PerFrameMetadata>>& perFrameMetadata) {
+void ComposerCommandEngine::executeSetLayerPerFrameMetadata(
+        int64_t display, int64_t layer, const std::vector<std::optional<PerFrameMetadata>>& perFrameMetadata) {
     auto err = mHal->setLayerPerFrameMetadata(display, layer, perFrameMetadata);
     if (err) {
         LOG(ERROR) << __func__ << ": err " << err;
@@ -461,7 +435,7 @@ void ComposerCommandEngine::executeSetLayerPerFrameMetadata(int64_t display, int
 }
 
 void ComposerCommandEngine::executeSetLayerColorTransform(int64_t display, int64_t layer,
-                                                       const std::vector<float>& matrix) {
+                                                          const std::vector<float>& matrix) {
     auto err = mHal->setLayerColorTransform(display, layer, matrix);
     if (err) {
         LOG(ERROR) << __func__ << ": err " << err;
@@ -478,8 +452,8 @@ void ComposerCommandEngine::executeSetLayerBrightness(int64_t display, int64_t l
     }
 }
 
-void ComposerCommandEngine::executeSetLayerPerFrameMetadataBlobs(int64_t display, int64_t layer,
-                      const std::vector<std::optional<PerFrameMetadataBlob>>& metadata) {
+void ComposerCommandEngine::executeSetLayerPerFrameMetadataBlobs(
+        int64_t display, int64_t layer, const std::vector<std::optional<PerFrameMetadataBlob>>& metadata) {
     auto err = mHal->setLayerPerFrameMetadataBlobs(display, layer, metadata);
     if (err) {
         LOG(ERROR) << __func__ << ": err " << err;
@@ -487,4 +461,4 @@ void ComposerCommandEngine::executeSetLayerPerFrameMetadataBlobs(int64_t display
     }
 }
 
-} // namespace aidl::android::hardware::graphics::composer3::impl
+}  // namespace aidl::android::hardware::graphics::composer3::impl

@@ -72,8 +72,7 @@ bool Composer::waitForClientDestroyedLocked(std::unique_lock<std::mutex>& lock) 
         // inverted (create and then destroy). Wait for a brief period to
         // see if the existing client is destroyed.
         LOG(DEBUG) << "waiting for previous client to be destroyed";
-        mClientDestroyedCondition.wait_for(lock, 1s,
-                                           [this]() -> bool { return !mClientAlive; });
+        mClientDestroyedCondition.wait_for(lock, 1s, [this]() -> bool { return !mClientAlive; });
         if (mClientAlive) {
             LOG(DEBUG) << "previous client was not destroyed";
         }
@@ -94,5 +93,4 @@ void Composer::onClientDestroyed() {
     return binder;
 }
 
-} // namespace aidl::android::hardware::graphics::composer3::impl
-
+}  // namespace aidl::android::hardware::graphics::composer3::impl

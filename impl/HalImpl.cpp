@@ -77,8 +77,7 @@ std::unique_ptr<IComposerHal> IComposerHal::create() {
 
 namespace hook {
 
-void hotplug(hwc2_callback_data_t callbackData, hwc2_display_t hwcDisplay,
-                        int32_t connected) {
+void hotplug(hwc2_callback_data_t callbackData, hwc2_display_t hwcDisplay, int32_t connected) {
     auto hal = static_cast<HalImpl*>(callbackData);
     int64_t display;
 
@@ -94,8 +93,8 @@ void refresh(hwc2_callback_data_t callbackData, hwc2_display_t hwcDisplay) {
     hal->getEventCallback()->onRefresh(display);
 }
 
-void vsync(hwc2_callback_data_t callbackData, hwc2_display_t hwcDisplay,
-                           int64_t timestamp, hwc2_vsync_period_t hwcVsyncPeriodNanos) {
+void vsync(hwc2_callback_data_t callbackData, hwc2_display_t hwcDisplay, int64_t timestamp,
+           hwc2_vsync_period_t hwcVsyncPeriodNanos) {
     auto hal = static_cast<HalImpl*>(callbackData);
     int64_t display;
     int32_t vsyncPeriodNanos;
@@ -105,9 +104,8 @@ void vsync(hwc2_callback_data_t callbackData, hwc2_display_t hwcDisplay,
     hal->getEventCallback()->onVsync(display, timestamp, vsyncPeriodNanos);
 }
 
-void vsyncPeriodTimingChanged(hwc2_callback_data_t callbackData,
-                                         hwc2_display_t hwcDisplay,
-                                         hwc_vsync_period_change_timeline_t* hwcTimeline) {
+void vsyncPeriodTimingChanged(hwc2_callback_data_t callbackData, hwc2_display_t hwcDisplay,
+                              hwc_vsync_period_change_timeline_t* hwcTimeline) {
     auto hal = static_cast<HalImpl*>(callbackData);
     int64_t display;
     VsyncPeriodChangeTimeline timeline;
@@ -133,15 +131,14 @@ void seamlessPossible(hwc2_callback_data_t callbackData, hwc2_display_t hwcDispl
     hal->getEventCallback()->onSeamlessPossible(display);
 }
 
-} // nampesapce hook
+}  // namespace hook
 
 bool HalImpl::initWithDevice(hwc2_device_t* device, bool requireReliablePresentFence) {
     // we own the device from this point on
     mDevice = device;
 
     initCaps();
-    if (requireReliablePresentFence &&
-        hasCapability(Capability::PRESENT_FENCE_IS_NOT_RELIABLE)) {
+    if (requireReliablePresentFence && hasCapability(Capability::PRESENT_FENCE_IS_NOT_RELIABLE)) {
         ALOGE("present fence must be reliable");
         mDevice->common.close(&mDevice->common);
         mDevice = nullptr;
@@ -200,11 +197,11 @@ void HalImpl::registerEventCallback(EventCallback* callback) {
     mEventCallback = callback;
 
     mDispatch.registerCallback(mDevice, HWC2_CALLBACK_HOTPLUG, this,
-                              reinterpret_cast<hwc2_function_pointer_t>(hook::hotplug));
+                               reinterpret_cast<hwc2_function_pointer_t>(hook::hotplug));
     mDispatch.registerCallback(mDevice, HWC2_CALLBACK_REFRESH, this,
-                              reinterpret_cast<hwc2_function_pointer_t>(hook::refresh));
+                               reinterpret_cast<hwc2_function_pointer_t>(hook::refresh));
     mDispatch.registerCallback(mDevice, HWC2_CALLBACK_VSYNC_2_4, this,
-                              reinterpret_cast<hwc2_function_pointer_t>(hook::vsync));
+                               reinterpret_cast<hwc2_function_pointer_t>(hook::vsync));
 
 #if 0
     mDevice->registerCallback(HWC2_CALLBACK_VSYNC_PERIOD_TIMING_CHANGED, this,
@@ -298,18 +295,14 @@ int32_t HalImpl::getDataspaceSaturationMatrix([[maybe_unused]] common::Dataspace
                                               std::vector<float>* matrix) {
     // Pixel HWC does not support dataspace saturation matrix, return unit matrix.
     std::vector<float> unitMatrix = {
-        1.0f, 0.0f, 0.0f, 0.0f,
-        0.0f, 1.0f, 0.0f, 0.0f,
-        0.0f, 0.0f, 1.0f, 0.0f,
-        0.0f, 0.0f, 0.0f, 1.0f,
+            1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
     };
 
     *matrix = std::move(unitMatrix);
     return HWC2_ERROR_NONE;
 }
 
-int32_t HalImpl::getDisplayAttribute(int64_t display, int32_t config,
-                                     DisplayAttribute attribute, int32_t* outValue) {
+int32_t HalImpl::getDisplayAttribute(int64_t display, int32_t config, DisplayAttribute attribute, int32_t* outValue) {
     hwc2_config_t hwcConfig;
     int32_t hwcAttr;
     a2h::translate(config, hwcConfig);
@@ -323,15 +316,13 @@ int32_t HalImpl::getDisplayAttribute(int64_t display, int32_t config,
 }
 
 int32_t HalImpl::getDisplayBrightnessSupport([[maybe_unused]] int64_t display, bool& outSupport) {
-
     if (!mDispatch.getDisplayBrightnessSupport) {
         return HWC2_ERROR_UNSUPPORTED;
     }
     return mDispatch.getDisplayBrightnessSupport(mDevice, display, &outSupport);
 }
 
-int32_t HalImpl::getDisplayCapabilities([[maybe_unused]] int64_t display,
-                                        std::vector<DisplayCapability>* caps) {
+int32_t HalImpl::getDisplayCapabilities([[maybe_unused]] int64_t display, std::vector<DisplayCapability>* caps) {
     if (!mDispatch.getDisplayCapabilities) {
         return HWC2_ERROR_UNSUPPORTED;
     }
@@ -369,8 +360,7 @@ int32_t HalImpl::getDisplayConnectionType(int64_t display, DisplayConnectionType
     return HWC2_ERROR_NONE;
 }
 
-int32_t HalImpl::getDisplayIdentificationData(int64_t display,
-                                              DisplayIdentification *id) {
+int32_t HalImpl::getDisplayIdentificationData(int64_t display, DisplayIdentification* id) {
     if (!mDispatch.getDisplayIdentificationData) {
         return HWC2_ERROR_UNSUPPORTED;
     }
@@ -407,23 +397,19 @@ int32_t HalImpl::getDisplayVsyncPeriod(int64_t display, int32_t* outVsyncPeriod)
     return HWC2_ERROR_NONE;
 }
 
-int32_t HalImpl::getDisplayedContentSample([[maybe_unused]] int64_t display,
-                                           [[maybe_unused]] int64_t maxFrames,
+int32_t HalImpl::getDisplayedContentSample([[maybe_unused]] int64_t display, [[maybe_unused]] int64_t maxFrames,
                                            [[maybe_unused]] int64_t timestamp,
                                            [[maybe_unused]] DisplayContentSample* samples) {
     return HWC2_ERROR_UNSUPPORTED;
 }
 
-int32_t HalImpl::getDisplayedContentSamplingAttributes(
-        [[maybe_unused]] int64_t display,
-        [[maybe_unused]] DisplayContentSamplingAttributes* attrs) {
+int32_t HalImpl::getDisplayedContentSamplingAttributes([[maybe_unused]] int64_t display,
+                                                       [[maybe_unused]] DisplayContentSamplingAttributes* attrs) {
     return HWC2_ERROR_UNSUPPORTED;
 }
 
-
 int32_t HalImpl::getDisplayPhysicalOrientation([[maybe_unused]] int64_t display,
                                                [[maybe_unused]] common::Transform* orientation) {
-
     uint32_t hwcType = HWC2_DISPLAY_CONNECTION_TYPE_INTERNAL;
     /* just use this function to judge whether display is valid */
     if (mDispatch.getDisplayConnectionType(mDevice, display, &hwcType) != HWC2_ERROR_NONE)
@@ -444,17 +430,12 @@ int32_t HalImpl::getDozeSupport(int64_t display, bool& support) {
 
 int32_t HalImpl::getHdrCapabilities(int64_t display, HdrCapabilities* caps) {
     uint32_t count = 0;
-    RET_IF_ERR(mDispatch.getHdrCapabilities(mDevice, display, &count, nullptr,
-                                              &caps->maxLuminance,
-                                              &caps->maxAverageLuminance,
-                                              &caps->minLuminance));
+    RET_IF_ERR(mDispatch.getHdrCapabilities(mDevice, display, &count, nullptr, &caps->maxLuminance,
+                                            &caps->maxAverageLuminance, &caps->minLuminance));
 
     std::vector<int32_t> hwcHdrTypes(count);
-    RET_IF_ERR(mDispatch.getHdrCapabilities(mDevice, display, &count,
-                                              hwcHdrTypes.data(),
-                                              &caps->maxLuminance,
-                                              &caps->maxAverageLuminance,
-                                              &caps->minLuminance));
+    RET_IF_ERR(mDispatch.getHdrCapabilities(mDevice, display, &count, hwcHdrTypes.data(), &caps->maxLuminance,
+                                            &caps->maxAverageLuminance, &caps->minLuminance));
 
     h2a::translate(hwcHdrTypes, caps->types);
     return HWC2_ERROR_NONE;
@@ -473,7 +454,7 @@ int32_t HalImpl::getMaxVirtualDisplayCount(int32_t* count) {
 
 int32_t HalImpl::getPerFrameMetadataKeys([[maybe_unused]] int64_t display,
                                          [[maybe_unused]] std::vector<PerFrameMetadataKey>* keys) {
-/* Drmhwc2 not support this feature */
+    /* Drmhwc2 not support this feature */
     return HWC2_ERROR_UNSUPPORTED;
 }
 
@@ -523,9 +504,8 @@ int32_t HalImpl::getSupportedContentTypes([[maybe_unused]] int64_t display, std:
     return HWC2_ERROR_NONE;
 }
 
-int32_t HalImpl::presentDisplay(int64_t display, ndk::ScopedFileDescriptor& fence,
-                       std::vector<int64_t>* outLayers,
-                       std::vector<ndk::ScopedFileDescriptor>* outReleaseFences) {
+int32_t HalImpl::presentDisplay(int64_t display, ndk::ScopedFileDescriptor& fence, std::vector<int64_t>* outLayers,
+                                std::vector<ndk::ScopedFileDescriptor>* outReleaseFences) {
     int32_t hwcOutPresentFence = -1;
     RET_IF_ERR(mDispatch.presentDisplay(mDevice, display, &hwcOutPresentFence));
     h2a::translate(hwcOutPresentFence, fence);
@@ -549,10 +529,9 @@ int32_t HalImpl::setActiveConfig(int64_t display, int32_t config) {
     return mDispatch.setActiveConfig(mDevice, display, hwcConfig);
 }
 
-int32_t HalImpl::setActiveConfigWithConstraints(
-            int64_t display, int32_t config,
-            const VsyncPeriodChangeConstraints& vsyncPeriodChangeConstraints,
-            VsyncPeriodChangeTimeline* timeline) {
+int32_t HalImpl::setActiveConfigWithConstraints(int64_t display, int32_t config,
+                                                const VsyncPeriodChangeConstraints& vsyncPeriodChangeConstraints,
+                                                VsyncPeriodChangeTimeline* timeline) {
     hwc2_config_t hwcConfig;
     hwc_vsync_period_change_constraints_t hwcVsyncPeriodChangeConstraints;
     hwc_vsync_period_change_timeline_t hwcOutTimeline;
@@ -560,7 +539,8 @@ int32_t HalImpl::setActiveConfigWithConstraints(
     a2h::translate(config, hwcConfig);
     a2h::translate(vsyncPeriodChangeConstraints, hwcVsyncPeriodChangeConstraints);
 
-    RET_IF_ERR(mDispatch.setActiveConfigWithConstraints(mDevice, display, hwcConfig, &hwcVsyncPeriodChangeConstraints, &hwcOutTimeline));
+    RET_IF_ERR(mDispatch.setActiveConfigWithConstraints(mDevice, display, hwcConfig, &hwcVsyncPeriodChangeConstraints,
+                                                        &hwcOutTimeline));
 
     h2a::translate(hwcOutTimeline, *timeline);
     return HWC2_ERROR_NONE;
@@ -594,13 +574,12 @@ int32_t HalImpl::setAutoLowLatencyMode([[maybe_unused]] int64_t display, [[maybe
     if (!mDispatch.getRenderIntents) {
         return HWC2_ERROR_UNSUPPORTED;
     }
-    return mDispatch.setAutoLowLatencyMode(mDevice, display, on);;
+    return mDispatch.setAutoLowLatencyMode(mDevice, display, on);
+    ;
 }
 
-int32_t HalImpl::setClientTarget(int64_t display, buffer_handle_t target,
-                                 const ndk::ScopedFileDescriptor& fence,
-                                 common::Dataspace dataspace,
-                                 const std::vector<common::Rect>& damage) {
+int32_t HalImpl::setClientTarget(int64_t display, buffer_handle_t target, const ndk::ScopedFileDescriptor& fence,
+                                 common::Dataspace dataspace, const std::vector<common::Rect>& damage) {
     int32_t hwcAcquireFence = -1;
     int32_t hwcDataspace;
     std::vector<hwc_rect_t> hwcDamage;
@@ -608,7 +587,7 @@ int32_t HalImpl::setClientTarget(int64_t display, buffer_handle_t target,
     a2h::translate(fence, hwcAcquireFence);
     a2h::translate(dataspace, hwcDataspace);
     a2h::translate(damage, hwcDamage);
-    hwc_region_t region = { hwcDamage.size(), hwcDamage.data() };
+    hwc_region_t region = {hwcDamage.size(), hwcDamage.data()};
 
     return mDispatch.setClientTarget(mDevice, display, target, hwcAcquireFence, hwcDataspace, region);
 }
@@ -620,8 +599,7 @@ int32_t HalImpl::setColorMode(int64_t display, ColorMode mode, RenderIntent inte
     a2h::translate(mode, hwcMode);
     a2h::translate(intent, hwcIntent);
 
-    if ((hwcMode < 0) || (hwcIntent < 0))
-        return HWC2_ERROR_BAD_PARAMETER;
+    if ((hwcMode < 0) || (hwcIntent < 0)) return HWC2_ERROR_BAD_PARAMETER;
 
     return mDispatch.setColorMode(mDevice, display, hwcMode);
 }
@@ -636,8 +614,8 @@ int32_t HalImpl::setColorTransform(int64_t display, const std::vector<float>& ma
     };
     // clang-format on
     const bool isIdentity = (std::equal(matrix.begin(), matrix.end(), kIdentity.begin()));
-    const common::ColorTransform hint = isIdentity ? common::ColorTransform::IDENTITY
-                                                   : common::ColorTransform::ARBITRARY_MATRIX;
+    const common::ColorTransform hint =
+            isIdentity ? common::ColorTransform::IDENTITY : common::ColorTransform::ARBITRARY_MATRIX;
 
     int32_t hwcHint;
     a2h::translate(hint, hwcHint);
@@ -657,14 +635,13 @@ int32_t HalImpl::setDisplayBrightness([[maybe_unused]] int64_t display, [[maybe_
     if (!mDispatch.setDisplayBrightness) {
         return HWC2_ERROR_UNSUPPORTED;
     }
-    return mDispatch.setDisplayBrightness(mDevice, display, brightness);;
+    return mDispatch.setDisplayBrightness(mDevice, display, brightness);
+    ;
 }
 
-int32_t HalImpl::setDisplayedContentSamplingEnabled(
-        [[maybe_unused]] int64_t display,
-        [[maybe_unused]] bool enable,
-        [[maybe_unused]] FormatColorComponent componentMask,
-        [[maybe_unused]] int64_t maxFrames) {
+int32_t HalImpl::setDisplayedContentSamplingEnabled([[maybe_unused]] int64_t display, [[maybe_unused]] bool enable,
+                                                    [[maybe_unused]] FormatColorComponent componentMask,
+                                                    [[maybe_unused]] int64_t maxFrames) {
     return HWC2_ERROR_UNSUPPORTED;
 }
 
@@ -740,14 +717,16 @@ int32_t HalImpl::setLayerDisplayFrame(int64_t display, int64_t layer, const comm
     return mDispatch.setLayerDisplayFrame(mDevice, display, hwcLayer, hwcFrame);
 }
 
-int32_t HalImpl::setLayerPerFrameMetadata([[maybe_unused]] int64_t display, [[maybe_unused]] int64_t layer,
-                           [[maybe_unused]] const std::vector<std::optional<PerFrameMetadata>>& metadata) {
+int32_t HalImpl::setLayerPerFrameMetadata(
+        [[maybe_unused]] int64_t display, [[maybe_unused]] int64_t layer,
+        [[maybe_unused]] const std::vector<std::optional<PerFrameMetadata>>& metadata) {
     /* Drmhwc2 not support this feature */
     return HWC2_ERROR_UNSUPPORTED;
 }
 
-int32_t HalImpl::setLayerPerFrameMetadataBlobs([[maybe_unused]] int64_t display, [[maybe_unused]] int64_t layer,
-                           [[maybe_unused]] const std::vector<std::optional<PerFrameMetadataBlob>>& blobs) {
+int32_t HalImpl::setLayerPerFrameMetadataBlobs(
+        [[maybe_unused]] int64_t display, [[maybe_unused]] int64_t layer,
+        [[maybe_unused]] const std::vector<std::optional<PerFrameMetadataBlob>>& blobs) {
     /* Drmhwc2 not support this feature */
     return HWC2_ERROR_UNSUPPORTED;
 }
@@ -759,8 +738,7 @@ int32_t HalImpl::setLayerPlaneAlpha(int64_t display, int64_t layer, float alpha)
     return mDispatch.setLayerPlaneAlpha(mDevice, display, hwcLayer, alpha);
 }
 
-int32_t HalImpl::setLayerSidebandStream(int64_t display, int64_t layer,
-                                        buffer_handle_t stream) {
+int32_t HalImpl::setLayerSidebandStream(int64_t display, int64_t layer, buffer_handle_t stream) {
     hwc2_layer_t hwcLayer = 0;
     a2h::translate(layer, hwcLayer);
 
@@ -778,12 +756,12 @@ int32_t HalImpl::setLayerSourceCrop(int64_t display, int64_t layer, const common
 }
 
 int32_t HalImpl::setLayerSurfaceDamage(int64_t display, int64_t layer,
-                                  const std::vector<std::optional<common::Rect>>& damage) {
+                                       const std::vector<std::optional<common::Rect>>& damage) {
     std::vector<hwc_rect_t> hwcDamage;
     hwc2_layer_t hwcLayer = 0;
 
     a2h::translate(damage, hwcDamage);
-    hwc_region_t region = { hwcDamage.size(), hwcDamage.data() };
+    hwc_region_t region = {hwcDamage.size(), hwcDamage.data()};
 
     a2h::translate(layer, hwcLayer);
 
@@ -801,19 +779,20 @@ int32_t HalImpl::setLayerTransform(int64_t display, int64_t layer, common::Trans
 }
 
 int32_t HalImpl::setLayerVisibleRegion(int64_t display, int64_t layer,
-                               const std::vector<std::optional<common::Rect>>& visible) {
+                                       const std::vector<std::optional<common::Rect>>& visible) {
     std::vector<hwc_rect_t> hwcVisible;
     hwc2_layer_t hwcLayer = 0;
 
     a2h::translate(visible, hwcVisible);
-    hwc_region_t region = { hwcVisible.size(), hwcVisible.data() };
+    hwc_region_t region = {hwcVisible.size(), hwcVisible.data()};
 
     a2h::translate(layer, hwcLayer);
 
     return mDispatch.setLayerVisibleRegion(mDevice, display, hwcLayer, region);
 }
 
-int32_t HalImpl::setLayerBrightness([[maybe_unused]] int64_t display, [[maybe_unused]] int64_t layer, float brightness) {
+int32_t HalImpl::setLayerBrightness([[maybe_unused]] int64_t display, [[maybe_unused]] int64_t layer,
+                                    float brightness) {
     if (!std::isfinite(brightness)) {
         ALOGW("%s layer brightness %f is not a valid floating value", __func__, brightness);
         return HWC2_ERROR_BAD_PARAMETER;
@@ -876,24 +855,18 @@ int32_t HalImpl::setIdleTimerEnabled([[maybe_unused]] int64_t display, [[maybe_u
     return HWC2_ERROR_UNSUPPORTED;
 }
 
-int32_t getClientTargetProperty(
-                        hwc_client_target_property_t *outClientTargetProperty,
-                        DimmingStage *outDimmingStage) {
+int32_t getClientTargetProperty(hwc_client_target_property_t* outClientTargetProperty, DimmingStage* outDimmingStage) {
     outClientTargetProperty->pixelFormat = HAL_PIXEL_FORMAT_RGBA_8888;
     outClientTargetProperty->dataspace = HAL_DATASPACE_UNKNOWN;
-    if (outDimmingStage != nullptr)
-        *outDimmingStage = DimmingStage::NONE;
+    if (outDimmingStage != nullptr) *outDimmingStage = DimmingStage::NONE;
 
     return HWC2_ERROR_NONE;
 }
 
 int32_t HalImpl::validateDisplay(int64_t display, std::vector<int64_t>* outChangedLayers,
-                                 std::vector<Composition>* outCompositionTypes,
-                                 uint32_t* outDisplayRequestMask,
-                                 std::vector<int64_t>* outRequestedLayers,
-                                 std::vector<int32_t>* outRequestMasks,
-                                 ClientTargetProperty* outClientTargetProperty,
-                                 DimmingStage* outDimmingStage) {
+                                 std::vector<Composition>* outCompositionTypes, uint32_t* outDisplayRequestMask,
+                                 std::vector<int64_t>* outRequestedLayers, std::vector<int32_t>* outRequestMasks,
+                                 ClientTargetProperty* outClientTargetProperty, DimmingStage* outDimmingStage) {
     uint32_t typesCount = 0;
     uint32_t reqsCount = 0;
     auto err = mDispatch.validateDisplay(mDevice, display, &typesCount, &reqsCount);
@@ -904,16 +877,15 @@ int32_t HalImpl::validateDisplay(int64_t display, std::vector<int64_t>* outChang
 
     std::vector<hwc2_layer_t> hwcChangedLayers(typesCount);
     std::vector<int32_t> hwcCompositionTypes(typesCount);
-    RET_IF_ERR(mDispatch.getChangedCompositionTypes(mDevice, display,
-                                                    &typesCount, hwcChangedLayers.data(),
+    RET_IF_ERR(mDispatch.getChangedCompositionTypes(mDevice, display, &typesCount, hwcChangedLayers.data(),
                                                     hwcCompositionTypes.data()));
 
     int32_t displayReqs;
 
     std::vector<hwc2_layer_t> hwcRequestedLayers(reqsCount);
     outRequestMasks->resize(reqsCount);
-    RET_IF_ERR(mDispatch.getDisplayRequests(mDevice, display, &displayReqs, &reqsCount,
-                                              hwcRequestedLayers.data(), outRequestMasks->data()));
+    RET_IF_ERR(mDispatch.getDisplayRequests(mDevice, display, &displayReqs, &reqsCount, hwcRequestedLayers.data(),
+                                            outRequestMasks->data()));
 
     h2a::translate(hwcChangedLayers, *outChangedLayers);
     h2a::translate(hwcCompositionTypes, *outCompositionTypes);
@@ -921,15 +893,14 @@ int32_t HalImpl::validateDisplay(int64_t display, std::vector<int64_t>* outChang
     h2a::translate(hwcRequestedLayers, *outRequestedLayers);
 
     hwc_client_target_property hwcProperty;
-    if (!getClientTargetProperty(&hwcProperty, outDimmingStage))
-        h2a::translate(hwcProperty, *outClientTargetProperty);
+    if (!getClientTargetProperty(&hwcProperty, outDimmingStage)) h2a::translate(hwcProperty, *outClientTargetProperty);
     // else ignore this error
 
     return HWC2_ERROR_NONE;
 }
 
-int HalImpl::setExpectedPresentTime(
-        [[maybe_unused]] int64_t display, const std::optional<ClockMonotonicTimestamp> expectedPresentTime) {
+int HalImpl::setExpectedPresentTime([[maybe_unused]] int64_t display,
+                                    const std::optional<ClockMonotonicTimestamp> expectedPresentTime) {
     if (!expectedPresentTime.has_value()) return HWC2_ERROR_NONE;
 
 #if 0
@@ -962,9 +933,9 @@ int32_t HalImpl::getDisplayIdleTimerSupport([[maybe_unused]] int64_t display, [[
 }
 
 int32_t HalImpl::setRefreshRateChangedCallbackDebugEnabled([[maybe_unused]] int64_t display,
-        [[maybe_unused]] bool enabled) {
+                                                           [[maybe_unused]] bool enabled) {
     /* Drmhwc2 not support this feature */
     return HWC2_ERROR_UNSUPPORTED;
 }
 
-} // namespace aidl::android::hardware::graphics::composer3::impl
+}  // namespace aidl::android::hardware::graphics::composer3::impl

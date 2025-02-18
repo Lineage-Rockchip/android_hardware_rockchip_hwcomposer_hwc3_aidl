@@ -16,6 +16,4 @@
 #ifndef RK_HWC_DEVICE_MODULE_H_
 #define RK_HWC_DEVICE_MODULE_H_
 
-
-
 #endif  // RK_HWC_DEVICE_MODULE_H_

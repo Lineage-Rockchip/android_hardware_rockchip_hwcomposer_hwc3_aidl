@@ -17,22 +17,22 @@
 #pragma once
 
 #include <android-base/logging.h>
-#include <string_view>
-#include <utils/Trace.h>
 #include <cutils/native_handle.h>
+#include <utils/Trace.h>
+#include <string_view>
 
 // #define LOG_FUNC
 #define TRACE_FUNC
 
 #ifdef TRACE_FUNC
-#define DEBUG_FUNC() constexpr static FullMethodName __kFullNameObj__ =                     \
-                                           FullMethodName{ __PRETTY_FUNCTION__ };           \
-                     constexpr static const char *__kFullName__ =  __kFullNameObj__.get();  \
-                     ATRACE_NAME(__kFullName__)
+#define DEBUG_FUNC()                                                                        \
+    constexpr static FullMethodName __kFullNameObj__ = FullMethodName{__PRETTY_FUNCTION__}; \
+    constexpr static const char* __kFullName__ = __kFullNameObj__.get();                    \
+    ATRACE_NAME(__kFullName__)
 
 #define DEBUG_DISPLAY_FUNC(display)                                                     \
     constexpr static FullMethodName __kFullNameObj__{__PRETTY_FUNCTION__};              \
-    constexpr static const char *__kFullName__ = __kFullNameObj__.get();                \
+    constexpr static const char* __kFullName__ = __kFullNameObj__.get();                \
     if (CC_UNLIKELY(ATRACE_ENABLED())) {                                                \
         ::android::String8 _traceName_;                                                 \
         _traceName_.appendFormat("%s(display=%" PRId64 ",..)", __kFullName__, display); \
@@ -51,28 +51,25 @@
 
 #endif
 
-#define RET_IF_ERR(expr)                  \
-    do {                                  \
-        auto err = (expr);                \
-        if (err) [[unlikely]] return err; \
+#define RET_IF_ERR(expr)      \
+    do {                      \
+        auto err = (expr);    \
+        if (err) [[unlikely]] \
+            return err;       \
     } while (0)
 
-
-#define TO_BINDER_STATUS(x) x == 0                                                \
-                            ? ndk::ScopedAStatus::ok()                            \
-                            : ndk::ScopedAStatus::fromServiceSpecificError(x)
+#define TO_BINDER_STATUS(x) x == 0 ? ndk::ScopedAStatus::ok() : ndk::ScopedAStatus::fromServiceSpecificError(x)
 
 namespace aidl::android::hardware::graphics::composer3::impl {
 
 class ScopedTraceEnder {
-public:
+  public:
     ~ScopedTraceEnder() { ATRACE_END(); }
 };
 
 class DebugFunction {
-public:
-    DebugFunction(const char *name, std::optional<int64_t> display)
-          : mName(name), mDisplay(display) {
+  public:
+    DebugFunction(const char* name, std::optional<int64_t> display) : mName(name), mDisplay(display) {
         if (mDisplay) {
             LOG(INFO) << mName << "(display=" << *mDisplay << ",..) Enter";
         } else {
@@ -88,13 +85,13 @@ public:
         }
     }
 
-private:
+  private:
     const char* mName;
     std::optional<int64_t> mDisplay;
 };
 
 class FullMethodName {
-public:
+  public:
     constexpr FullMethodName(const std::string_view prettyName) : mBuf() {
         // remove every thing before 'impl::'
         auto start = prettyName.find("impl::");
@@ -115,12 +112,10 @@ public:
         }
     }
 
-    constexpr const char *get() const {
-        return mBuf.data();
-    }
+    constexpr const char* get() const { return mBuf.data(); }
 
-private:
+  private:
     std::array<char, 256> mBuf;
 };
 
-} // namespace aidl::android::hardware::graphics::composer3::impl
+}  // namespace aidl::android::hardware::graphics::composer3::impl

@@ -34,8 +34,7 @@ std::unique_ptr<IBufferReleaser> ResourceManager::createReleaser(bool isBuffer) 
 }
 
 void ResourceManager::clear(RemoveDisplay removeDisplay) {
-    mResources->clear([removeDisplay](Display hwcDisplay, bool isVirtual,
-                                      const std::vector<Layer> hwcLayers) {
+    mResources->clear([removeDisplay](Display hwcDisplay, bool isVirtual, const std::vector<Layer> hwcLayers) {
         int64_t display;
         std::vector<int64_t> layers;
         h2a::translate(hwcDisplay, display);
@@ -63,7 +62,6 @@ int32_t ResourceManager::addPhysicalDisplay(int64_t display) {
     return err;
 }
 
-
 int32_t ResourceManager::addVirtualDisplay(int64_t display, uint32_t outputBufferCacheSize) {
     Display hwcDisplay;
     a2h::translate(display, hwcDisplay);
@@ -86,8 +84,7 @@ int32_t ResourceManager::removeDisplay(int64_t display) {
     return err;
 }
 
-int32_t ResourceManager::setDisplayClientTargetCacheSize(int64_t display,
-                                                         uint32_t clientTargetCacheSize) {
+int32_t ResourceManager::setDisplayClientTargetCacheSize(int64_t display, uint32_t clientTargetCacheSize) {
     Display hwcDisplay;
     a2h::translate(display, hwcDisplay);
 
@@ -162,15 +159,13 @@ bool ResourceManager::mustValidateDisplay(int64_t display) {
 }
 
 int32_t ResourceManager::getDisplayReadbackBuffer(int64_t display, const buffer_handle_t handle,
-                                                  buffer_handle_t& outHandle,
-                                                  IBufferReleaser* bufReleaser) {
+                                                  buffer_handle_t& outHandle, IBufferReleaser* bufReleaser) {
     Display hwcDisplay;
     a2h::translate(display, hwcDisplay);
 
     // dynamic_cast is not available
     auto br = static_cast<BufferReleaser*>(bufReleaser);
-    Error hwcErr = mResources->getDisplayReadbackBuffer(hwcDisplay, handle, &outHandle,
-                                                        br->getReplacedHandle());
+    Error hwcErr = mResources->getDisplayReadbackBuffer(hwcDisplay, handle, &outHandle, br->getReplacedHandle());
 
     int32_t err;
     h2a::translate(hwcErr, err);
@@ -178,15 +173,14 @@ int32_t ResourceManager::getDisplayReadbackBuffer(int64_t display, const buffer_
 }
 
 int32_t ResourceManager::getDisplayClientTarget(int64_t display, uint32_t slot, bool fromCache,
-                                                const buffer_handle_t handle,
-                                                buffer_handle_t& outHandle,
+                                                const buffer_handle_t handle, buffer_handle_t& outHandle,
                                                 IBufferReleaser* bufReleaser) {
     Display hwcDisplay;
     a2h::translate(display, hwcDisplay);
 
     auto br = static_cast<BufferReleaser*>(bufReleaser);
-    Error hwcErr = mResources->getDisplayClientTarget(hwcDisplay, slot, fromCache, handle,
-                                                      &outHandle, br->getReplacedHandle());
+    Error hwcErr = mResources->getDisplayClientTarget(hwcDisplay, slot, fromCache, handle, &outHandle,
+                                                      br->getReplacedHandle());
 
     int32_t err;
     h2a::translate(hwcErr, err);
@@ -194,24 +188,22 @@ int32_t ResourceManager::getDisplayClientTarget(int64_t display, uint32_t slot, 
 }
 
 int32_t ResourceManager::getDisplayOutputBuffer(int64_t display, uint32_t slot, bool fromCache,
-                                   const buffer_handle_t handle,
-                                   buffer_handle_t& outHandle,
-                                   IBufferReleaser* bufReleaser) {
+                                                const buffer_handle_t handle, buffer_handle_t& outHandle,
+                                                IBufferReleaser* bufReleaser) {
     Display hwcDisplay;
     a2h::translate(display, hwcDisplay);
 
     auto br = static_cast<BufferReleaser*>(bufReleaser);
-    Error hwcErr = mResources->getDisplayOutputBuffer(hwcDisplay, slot, fromCache, handle,
-                                                      &outHandle, br->getReplacedHandle());
+    Error hwcErr = mResources->getDisplayOutputBuffer(hwcDisplay, slot, fromCache, handle, &outHandle,
+                                                      br->getReplacedHandle());
 
     int32_t err;
     h2a::translate(hwcErr, err);
     return err;
 }
 
-int32_t ResourceManager::getLayerBuffer(int64_t display, int64_t layer, uint32_t slot,
-                                        bool fromCache, const buffer_handle_t rawHandle,
-                                        buffer_handle_t& outBufferHandle,
+int32_t ResourceManager::getLayerBuffer(int64_t display, int64_t layer, uint32_t slot, bool fromCache,
+                                        const buffer_handle_t rawHandle, buffer_handle_t& outBufferHandle,
                                         IBufferReleaser* bufReleaser) {
     Display hwcDisplay;
     a2h::translate(display, hwcDisplay);
@@ -220,19 +212,16 @@ int32_t ResourceManager::getLayerBuffer(int64_t display, int64_t layer, uint32_t
     a2h::translate(layer, hwcLayer);
 
     auto br = static_cast<BufferReleaser*>(bufReleaser);
-    Error hwcErr = mResources->getLayerBuffer(hwcDisplay, hwcLayer, slot, fromCache,
-                                                rawHandle, &outBufferHandle,
-                                                br->getReplacedHandle());
+    Error hwcErr = mResources->getLayerBuffer(hwcDisplay, hwcLayer, slot, fromCache, rawHandle, &outBufferHandle,
+                                              br->getReplacedHandle());
 
     int32_t err;
     h2a::translate(hwcErr, err);
     return err;
 }
 
-int32_t ResourceManager::getLayerSidebandStream(int64_t display, int64_t layer,
-                                                const buffer_handle_t rawHandle,
-                                                buffer_handle_t& outStreamHandle,
-                                                IBufferReleaser* bufReleaser) {
+int32_t ResourceManager::getLayerSidebandStream(int64_t display, int64_t layer, const buffer_handle_t rawHandle,
+                                                buffer_handle_t& outStreamHandle, IBufferReleaser* bufReleaser) {
     Display hwcDisplay;
     a2h::translate(display, hwcDisplay);
 
@@ -240,12 +229,12 @@ int32_t ResourceManager::getLayerSidebandStream(int64_t display, int64_t layer,
     a2h::translate(layer, hwcLayer);
 
     auto br = static_cast<BufferReleaser*>(bufReleaser);
-    Error hwcErr = mResources->getLayerSidebandStream(hwcDisplay, hwcLayer, rawHandle,
-                                                      &outStreamHandle, br->getReplacedHandle());
+    Error hwcErr = mResources->getLayerSidebandStream(hwcDisplay, hwcLayer, rawHandle, &outStreamHandle,
+                                                      br->getReplacedHandle());
 
     int32_t err;
     h2a::translate(hwcErr, err);
     return err;
 }
 
-} // namespace aidl::android::hardware::graphics::composer3::impl
+}  // namespace aidl::android::hardware::graphics::composer3::impl

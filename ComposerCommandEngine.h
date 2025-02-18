@@ -28,84 +28,68 @@ namespace aidl::android::hardware::graphics::composer3::impl {
 
 class ComposerCommandEngine {
   public:
-      ComposerCommandEngine(IComposerHal* hal, IResourceManager* resources)
-            : mHal(hal), mResources(resources) {}
-      int32_t init();
+    ComposerCommandEngine(IComposerHal* hal, IResourceManager* resources) : mHal(hal), mResources(resources) {}
+    int32_t init();
 
-      int32_t execute(const std::vector<DisplayCommand>& commands,
-                      std::vector<CommandResultPayload>* result);
+    int32_t execute(const std::vector<DisplayCommand>& commands, std::vector<CommandResultPayload>* result);
 
-      template <typename InputType, typename Functor>
-      void dispatchLayerCommand(int64_t display, int64_t layer, const std::string& funcName,
-                                const InputType input, const Functor func);
+    template <typename InputType, typename Functor>
+    void dispatchLayerCommand(int64_t display, int64_t layer, const std::string& funcName, const InputType input,
+                              const Functor func);
 
-      void reset() {
-          mWriter->reset();
-      }
+    void reset() { mWriter->reset(); }
 
   private:
-      void dispatchDisplayCommand(const DisplayCommand& displayCommand);
-      void dispatchLayerCommand(int64_t display, const LayerCommand& displayCommand);
+    void dispatchDisplayCommand(const DisplayCommand& displayCommand);
+    void dispatchLayerCommand(int64_t display, const LayerCommand& displayCommand);
 
-      void executeSetColorTransform(int64_t display, const std::vector<float>& matrix);
-      void executeSetClientTarget(int64_t display, const ClientTarget& command);
-      void executeSetDisplayBrightness(uint64_t display, const DisplayBrightness& command);
-      void executeSetOutputBuffer(uint64_t display, const Buffer& buffer);
-      void executeValidateDisplay(int64_t display,
-                                  const std::optional<ClockMonotonicTimestamp> expectedPresentTime);
-      void executePresentOrValidateDisplay(
-              int64_t display, const std::optional<ClockMonotonicTimestamp> expectedPresentTime);
-      void executeAcceptDisplayChanges(int64_t display);
-      int executePresentDisplay(int64_t display);
+    void executeSetColorTransform(int64_t display, const std::vector<float>& matrix);
+    void executeSetClientTarget(int64_t display, const ClientTarget& command);
+    void executeSetDisplayBrightness(uint64_t display, const DisplayBrightness& command);
+    void executeSetOutputBuffer(uint64_t display, const Buffer& buffer);
+    void executeValidateDisplay(int64_t display, const std::optional<ClockMonotonicTimestamp> expectedPresentTime);
+    void executePresentOrValidateDisplay(int64_t display,
+                                         const std::optional<ClockMonotonicTimestamp> expectedPresentTime);
+    void executeAcceptDisplayChanges(int64_t display);
+    int executePresentDisplay(int64_t display);
 
-      void executeSetLayerCursorPosition(int64_t display, int64_t layer,
-                                         const common::Point& cursorPosition);
-      void executeSetLayerBuffer(int64_t display, int64_t layer, const Buffer& buffer);
-      void executeSetLayerSurfaceDamage(int64_t display, int64_t layer,
-                                        const std::vector<std::optional<common::Rect>>& damage);
-      void executeSetLayerBlendMode(int64_t display, int64_t layer,
-                                    const ParcelableBlendMode& blendMode);
-      void executeSetLayerColor(int64_t display, int64_t layer, const Color& color);
-      void executeSetLayerComposition(int64_t display, int64_t layer,
-                                      const ParcelableComposition& composition);
-      void executeSetLayerDataspace(int64_t display, int64_t layer,
-                                    const ParcelableDataspace& dataspace);
-      void executeSetLayerDisplayFrame(int64_t display, int64_t layer, const common::Rect& rect);
-      void executeSetLayerPlaneAlpha(int64_t display, int64_t layer, const PlaneAlpha& planeAlpha);
-      void executeSetLayerSidebandStream(int64_t display, int64_t layer,
-                                         const AidlNativeHandle& sidebandStream);
-      void executeSetLayerSourceCrop(int64_t display, int64_t layer,
-                                     const common::FRect& sourceCrop);
-      void executeSetLayerTransform(int64_t display, int64_t layer,
-                                    const ParcelableTransform& transform);
-      void executeSetLayerVisibleRegion(
-              int64_t display, int64_t layer,
-              const std::vector<std::optional<common::Rect>>& visibleRegion);
-      void executeSetLayerZOrder(int64_t display, int64_t layer, const ZOrder& zOrder);
-      void executeSetLayerPerFrameMetadata(
-              int64_t display, int64_t layer,
-              const std::vector<std::optional<PerFrameMetadata>>& perFrameMetadata);
-      void executeSetLayerColorTransform(int64_t display, int64_t layer,
-                                         const std::vector<float>& colorTransform);
-      void executeSetLayerPerFrameMetadataBlobs(int64_t display, int64_t layer,
-              const std::vector<std::optional<PerFrameMetadataBlob>>& perFrameMetadataBlob);
-      void executeSetLayerBrightness(int64_t display, int64_t layer,
-                                     const LayerBrightness& brightness);
+    void executeSetLayerCursorPosition(int64_t display, int64_t layer, const common::Point& cursorPosition);
+    void executeSetLayerBuffer(int64_t display, int64_t layer, const Buffer& buffer);
+    void executeSetLayerSurfaceDamage(int64_t display, int64_t layer,
+                                      const std::vector<std::optional<common::Rect>>& damage);
+    void executeSetLayerBlendMode(int64_t display, int64_t layer, const ParcelableBlendMode& blendMode);
+    void executeSetLayerColor(int64_t display, int64_t layer, const Color& color);
+    void executeSetLayerComposition(int64_t display, int64_t layer, const ParcelableComposition& composition);
+    void executeSetLayerDataspace(int64_t display, int64_t layer, const ParcelableDataspace& dataspace);
+    void executeSetLayerDisplayFrame(int64_t display, int64_t layer, const common::Rect& rect);
+    void executeSetLayerPlaneAlpha(int64_t display, int64_t layer, const PlaneAlpha& planeAlpha);
+    void executeSetLayerSidebandStream(int64_t display, int64_t layer, const AidlNativeHandle& sidebandStream);
+    void executeSetLayerSourceCrop(int64_t display, int64_t layer, const common::FRect& sourceCrop);
+    void executeSetLayerTransform(int64_t display, int64_t layer, const ParcelableTransform& transform);
+    void executeSetLayerVisibleRegion(int64_t display, int64_t layer,
+                                      const std::vector<std::optional<common::Rect>>& visibleRegion);
+    void executeSetLayerZOrder(int64_t display, int64_t layer, const ZOrder& zOrder);
+    void executeSetLayerPerFrameMetadata(int64_t display, int64_t layer,
+                                         const std::vector<std::optional<PerFrameMetadata>>& perFrameMetadata);
+    void executeSetLayerColorTransform(int64_t display, int64_t layer, const std::vector<float>& colorTransform);
+    void executeSetLayerPerFrameMetadataBlobs(
+            int64_t display, int64_t layer,
+            const std::vector<std::optional<PerFrameMetadataBlob>>& perFrameMetadataBlob);
+    void executeSetLayerBrightness(int64_t display, int64_t layer, const LayerBrightness& brightness);
 
-      int32_t executeValidateDisplayInternal(int64_t display);
-      void executeSetExpectedPresentTimeInternal(
-              int64_t display, const std::optional<ClockMonotonicTimestamp> expectedPresentTime);
+    int32_t executeValidateDisplayInternal(int64_t display);
+    void executeSetExpectedPresentTimeInternal(int64_t display,
+                                               const std::optional<ClockMonotonicTimestamp> expectedPresentTime);
 
-      IComposerHal* mHal;
-      IResourceManager* mResources;
-      std::unique_ptr<ComposerServiceWriter> mWriter;
-      int32_t mCommandIndex;
+    IComposerHal* mHal;
+    IResourceManager* mResources;
+    std::unique_ptr<ComposerServiceWriter> mWriter;
+    int32_t mCommandIndex;
 };
 
 template <typename InputType, typename Functor>
-void ComposerCommandEngine::dispatchLayerCommand(int64_t display, int64_t layer,
-                                                 const std::string& funcName, const InputType input,
-                                                 const Functor func) {
+void ComposerCommandEngine::dispatchLayerCommand(int64_t display, int64_t layer, const std::string& funcName,
+                                                 const InputType input, const Functor func) {
     if (input) {
         auto err = (mHal->*func)(display, layer, *input);
         if (err) {
@@ -115,5 +99,4 @@ void ComposerCommandEngine::dispatchLayerCommand(int64_t display, int64_t layer,
     }
 };
 
-} // namespace aidl::android::hardware::graphics::composer3::impl
-
+}  // namespace aidl::android::hardware::graphics::composer3::impl
