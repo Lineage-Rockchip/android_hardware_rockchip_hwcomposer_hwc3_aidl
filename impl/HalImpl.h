@@ -140,6 +140,8 @@ class HalImpl : public IComposerHal {
                             ClientTargetProperty* outClientTargetProperty, DimmingStage* outDimmingStage) override;
     int32_t setExpectedPresentTime(int64_t display,
                                    const std::optional<ClockMonotonicTimestamp> expectedPresentTime) override;
+    int32_t getClientTargetProperty(int64_t display, hwc_client_target_property_t* outClientTargetProperty,
+                                    DimmingStage* outDimmingStage);
 
     EventCallback* getEventCallback() { return mEventCallback; }
 
@@ -151,7 +153,7 @@ class HalImpl : public IComposerHal {
             *outPfn = reinterpret_cast<T>(pfn);
             return true;
         } else {
-            ALOGE("failed to get hwcomposer2 function %d", desc);
+            ALOGW("unsupport hwcomposer2 feature function %s", getFunctionDescriptorName(desc));
             return false;
         }
     }
@@ -213,33 +215,39 @@ class HalImpl : public IComposerHal {
             ALOGE("failed to get hwcomposer2 functions %s(%d)", __FUNCTION__, __LINE__);
             return false;
         }
+
         /* composer 2.2 */
-        if (!initDispatch(HWC2_FUNCTION_GET_RENDER_INTENTS, &mDispatch.getRenderIntents) ||
-            !initDispatch(HWC2_FUNCTION_SET_COLOR_MODE_WITH_RENDER_INTENT, &mDispatch.setColorModeWithRenderIntent)) {
-            ALOGE("failed to get hwcomposer2.4 functions %s(%d)", __FUNCTION__, __LINE__);
-            return false;
-        }
+        initDispatch(HWC2_FUNCTION_SET_LAYER_FLOAT_COLOR, &mDispatch.setLayerFloatColor);
+        initDispatch(HWC2_FUNCTION_SET_LAYER_PER_FRAME_METADATA, &mDispatch.setLayerPerFrameMetadata);
+        initDispatch(HWC2_FUNCTION_GET_PER_FRAME_METADATA_KEYS, &mDispatch.getPerFrameMetadataKeys);
+        initDispatch(HWC2_FUNCTION_SET_READBACK_BUFFER, &mDispatch.setReadbackBuffer);
+        initDispatch(HWC2_FUNCTION_GET_READBACK_BUFFER_ATTRIBUTES, &mDispatch.getReadbackBufferAttributes);
+        initDispatch(HWC2_FUNCTION_GET_READBACK_BUFFER_FENCE, &mDispatch.getReadbackBufferFence);
+        initDispatch(HWC2_FUNCTION_GET_RENDER_INTENTS, &mDispatch.getRenderIntents);
+        initDispatch(HWC2_FUNCTION_SET_COLOR_MODE_WITH_RENDER_INTENT, &mDispatch.setColorModeWithRenderIntent);
         /* composer 2.3 */
-        if (!initDispatch(HWC2_FUNCTION_GET_DISPLAY_IDENTIFICATION_DATA, &mDispatch.getDisplayIdentificationData) ||
-            !initDispatch(HWC2_FUNCTION_GET_DISPLAY_CAPABILITIES, &mDispatch.getDisplayCapabilities) ||
-            !initDispatch(HWC2_FUNCTION_GET_DISPLAY_BRIGHTNESS_SUPPORT, &mDispatch.getDisplayBrightnessSupport) ||
-            !initDispatch(HWC2_FUNCTION_SET_DISPLAY_BRIGHTNESS, &mDispatch.setDisplayBrightness)) {
-            ALOGE("failed to get hwcomposer2.4 functions %s(%d)", __FUNCTION__, __LINE__);
-            return false;
-        }
+        initDispatch(HWC2_FUNCTION_GET_DISPLAY_IDENTIFICATION_DATA, &mDispatch.getDisplayIdentificationData);
+        initDispatch(HWC2_FUNCTION_GET_DISPLAY_CAPABILITIES, &mDispatch.getDisplayCapabilities);
+        initDispatch(HWC2_FUNCTION_GET_DISPLAY_BRIGHTNESS_SUPPORT, &mDispatch.getDisplayBrightnessSupport);
+        initDispatch(HWC2_FUNCTION_SET_DISPLAY_BRIGHTNESS, &mDispatch.setDisplayBrightness);
+        initDispatch(HWC2_FUNCTION_SET_LAYER_COLOR_TRANSFORM, &mDispatch.setLayerColorTransform);
+        initDispatch(HWC2_FUNCTION_GET_DISPLAYED_CONTENT_SAMPLING_ATTRIBUTES,
+                     &mDispatch.getDisplayedContentSamplingAttributes);
+        initDispatch(HWC2_FUNCTION_SET_DISPLAYED_CONTENT_SAMPLING_ENABLED,
+                     &mDispatch.setDisplayedContentSamplingEnabled);
+        initDispatch(HWC2_FUNCTION_GET_DISPLAYED_CONTENT_SAMPLE, &mDispatch.getDisplayedContentSample);
+        initDispatch(HWC2_FUNCTION_SET_LAYER_PER_FRAME_METADATA_BLOBS, &mDispatch.setLayerPerFrameMetadataBlobs);
+
         /* composer 2.4 */
-        if (!initDispatch(HWC2_FUNCTION_GET_DISPLAY_CONNECTION_TYPE, &mDispatch.getDisplayConnectionType) ||
-            !initDispatch(HWC2_FUNCTION_GET_DISPLAY_VSYNC_PERIOD, &mDispatch.getDisplayVsyncPeriod) ||
-            !initDispatch(HWC2_FUNCTION_SET_ACTIVE_CONFIG_WITH_CONSTRAINTS,
-                          &mDispatch.setActiveConfigWithConstraints) ||
-            !initDispatch(HWC2_FUNCTION_SET_AUTO_LOW_LATENCY_MODE, &mDispatch.setAutoLowLatencyMode) ||
-            !initDispatch(HWC2_FUNCTION_GET_SUPPORTED_CONTENT_TYPES, &mDispatch.getSupportedContentTypes) ||
-            !initDispatch(HWC2_FUNCTION_SET_ACTIVE_CONFIG_WITH_CONSTRAINTS,
-                          &mDispatch.setActiveConfigWithConstraints) ||
-            !initDispatch(HWC2_FUNCTION_SET_CONTENT_TYPE, &mDispatch.setContentType)) {
-            ALOGE("failed to get hwcomposer2.4 functions %s(%d)", __FUNCTION__, __LINE__);
-            return false;
-        }
+        initDispatch(HWC2_FUNCTION_GET_DISPLAY_CONNECTION_TYPE, &mDispatch.getDisplayConnectionType);
+        initDispatch(HWC2_FUNCTION_GET_DISPLAY_VSYNC_PERIOD, &mDispatch.getDisplayVsyncPeriod);
+        initDispatch(HWC2_FUNCTION_SET_ACTIVE_CONFIG_WITH_CONSTRAINTS, &mDispatch.setActiveConfigWithConstraints);
+        initDispatch(HWC2_FUNCTION_SET_AUTO_LOW_LATENCY_MODE, &mDispatch.setAutoLowLatencyMode);
+        initDispatch(HWC2_FUNCTION_GET_SUPPORTED_CONTENT_TYPES, &mDispatch.getSupportedContentTypes);
+        initDispatch(HWC2_FUNCTION_SET_CONTENT_TYPE, &mDispatch.setContentType);
+        initDispatch(HWC2_FUNCTION_GET_CLIENT_TARGET_PROPERTY, &mDispatch.getClientTargetProperty);
+        initDispatch(HWC2_FUNCTION_SET_LAYER_GENERIC_METADATA, &mDispatch.setLayerGenericMetadata);
+        initDispatch(HWC2_FUNCTION_GET_LAYER_GENERIC_METADATA_KEY, &mDispatch.getLayerGenericMetadataKey);
 
         return true;
     }
