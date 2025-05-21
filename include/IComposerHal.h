@@ -48,6 +48,9 @@
 #include <aidl/android/hardware/graphics/composer3/DisplayBrightness.h>
 #include <aidl/android/hardware/graphics/composer3/DisplayCapability.h>
 #include <aidl/android/hardware/graphics/composer3/DisplayCommand.h>
+#ifdef HWC3_V4
+#include <aidl/android/hardware/graphics/composer3/DisplayConfiguration.h>
+#endif
 #include <aidl/android/hardware/graphics/composer3/DisplayConnectionType.h>
 #include <aidl/android/hardware/graphics/composer3/DisplayContentSample.h>
 #include <aidl/android/hardware/graphics/composer3/DisplayContentSamplingAttributes.h>
@@ -81,6 +84,9 @@
 // avoid naming conflict
 using AidlPixelFormat = aidl::android::hardware::graphics::common::PixelFormat;
 using AidlNativeHandle = aidl::android::hardware::common::NativeHandle;
+#ifdef HWC3_V4
+using DisplayConfiguration = aidl::android::hardware::graphics::composer3::DisplayConfiguration;
+#endif
 
 namespace aidl::android::hardware::graphics::composer3::impl {
 
@@ -125,6 +131,13 @@ class IComposerHal {
     virtual int32_t getDisplayCapabilities(int64_t display, std::vector<DisplayCapability>* caps) = 0;
     virtual int32_t getDisplayConfigs(int64_t display, std::vector<int32_t>* configs) = 0;
     virtual int32_t getDisplayConnectionType(int64_t display, DisplayConnectionType* outType) = 0;
+
+#ifdef HWC3_V4
+    virtual int32_t getDisplayConfigurations(int64_t display, int32_t maxFrameIntervalNs,
+                                             std::vector<DisplayConfiguration>* configs) = 0;
+    virtual int32_t notifyExpectedPresent(int64_t display, const ClockMonotonicTimestamp& expectedPresentTime,
+                                          int32_t frameIntervalNs) = 0;
+#endif
     virtual int32_t getDisplayIdentificationData(int64_t display, DisplayIdentification* id) = 0;
     virtual int32_t getDisplayName(int64_t display, std::string* outName) = 0;
     virtual int32_t getDisplayVsyncPeriod(int64_t display, int32_t* outVsyncPeriod) = 0;
@@ -202,6 +215,10 @@ class IComposerHal {
     virtual int32_t getRCDLayerSupport(int64_t display, bool& outSupport) = 0;
     virtual int32_t setLayerBlockingRegion(int64_t display, int64_t layer,
                                            const std::vector<std::optional<common::Rect>>& blockingRegion) = 0;
+
+#ifdef HWC3_V4
+    virtual int32_t getMaxLayerPictureProfiles(int64_t display, int32_t* outMaxProfiles) = 0;
+#endif
 };
 
 }  // namespace aidl::android::hardware::graphics::composer3::impl

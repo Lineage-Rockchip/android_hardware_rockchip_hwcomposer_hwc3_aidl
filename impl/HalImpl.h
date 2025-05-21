@@ -142,6 +142,13 @@ class HalImpl : public IComposerHal {
                                    const std::optional<ClockMonotonicTimestamp> expectedPresentTime) override;
     int32_t getClientTargetProperty(int64_t display, hwc_client_target_property_t* outClientTargetProperty,
                                     DimmingStage* outDimmingStage);
+#ifdef HWC3_V4
+    int32_t getDisplayConfigurations(int64_t display, int32_t maxFrameIntervalNs,
+                                     std::vector<DisplayConfiguration>* outConfigs) override;
+    int32_t notifyExpectedPresent(int64_t display, const ClockMonotonicTimestamp& expectedPresentTime,
+                                  int32_t frameIntervalNs) override;
+    int32_t getMaxLayerPictureProfiles(int64_t display, int32_t* outMaxProfiles) override;
+#endif
 
     EventCallback* getEventCallback() { return mEventCallback; }
 

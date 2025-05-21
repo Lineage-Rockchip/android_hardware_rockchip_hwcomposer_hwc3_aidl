@@ -16,6 +16,7 @@ LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
 
 soc_ver := $(TARGET_BOARD_PLATFORM)
+
 LOCAL_MODULE := android.hardware.graphics.composer3-service.rockchip
 
 LOCAL_LICENSE_KINDS := SPDX-license-identifier-Apache-2.0
@@ -32,8 +33,7 @@ LOCAL_CFLAGS += \
 	-DHWC2_INCLUDE_STRINGIFICATION
 
 # hwc3 re-uses hwc2.2 ComposerResource and libexynosdisplay
-LOCAL_SHARED_LIBRARIES := android.hardware.graphics.composer3-V2-ndk \
-	android.hardware.graphics.composer@2.1-resources \
+LOCAL_SHARED_LIBRARIES := android.hardware.graphics.composer@2.1-resources \
     android.hardware.graphics.composer@2.2-resources \
 	android.hardware.graphics.composer@2.4 \
 	libbase \
@@ -46,6 +46,24 @@ LOCAL_SHARED_LIBRARIES := android.hardware.graphics.composer3-V2-ndk \
 	liblog \
 	libsync \
 	libutils
+
+
+# API 36 -> Android 16
+LOCAL_CFLAGS += \
+  -DPLATFORM_SDK_VERSION=$(PLATFORM_SDK_VERSION)
+
+ifeq (1,$(strip $(shell expr $(PLATFORM_SDK_VERSION) \>= 36)))
+LOCAL_SHARED_LIBRARIES += android.hardware.graphics.composer3-V4-ndk
+LOCAL_VINTF_FRAGMENTS = hwc3-v4-default.xml
+LOCAL_CFLAGS += \
+	-DHWC3_V4=1
+else
+LOCAL_SHARED_LIBRARIES += android.hardware.graphics.composer3-V2-ndk
+LOCAL_VINTF_FRAGMENTS = hwc3-default.xml
+LOCAL_CFLAGS += \
+  -DPLATFORM_SDK_VERSION=$(PLATFORM_SDK_VERSION)
+endif
+
 
 LOCAL_STATIC_LIBRARIES := libaidlcommonsupport
 
@@ -76,7 +94,6 @@ LOCAL_CFLAGS += \
 	-DUSE_HWC_PROXY_SERVICE=1
 endif
 
-LOCAL_VINTF_FRAGMENTS = hwc3-default.xml
 LOCAL_INIT_RC := hwc3-rk.rc
 
 include $(BUILD_EXECUTABLE)
