@@ -349,8 +349,7 @@ int32_t HalImpl::getDisplayConfigs(int64_t display, std::vector<int32_t>* config
     return HWC2_ERROR_NONE;
 }
 #ifdef HWC3_V4
-int32_t HalImpl::getDisplayConfigurations(int64_t display, int32_t,
-                                          std::vector<DisplayConfiguration>* outConfigs) {
+int32_t HalImpl::getDisplayConfigurations(int64_t display, int32_t, std::vector<DisplayConfiguration>* outConfigs) {
     std::vector<int32_t> configIds;
     RET_IF_ERR(getDisplayConfigs(display, &configIds));
 
@@ -359,12 +358,9 @@ int32_t HalImpl::getDisplayConfigurations(int64_t display, int32_t,
         config.configId = configId;
         // Get required display attributes
         RET_IF_ERR(getDisplayAttribute(display, configId, DisplayAttribute::WIDTH, &config.width));
-        RET_IF_ERR(
-                getDisplayAttribute(display, configId, DisplayAttribute::HEIGHT, &config.height));
-        RET_IF_ERR(getDisplayAttribute(display, configId, DisplayAttribute::VSYNC_PERIOD,
-                                       &config.vsyncPeriod));
-        RET_IF_ERR(getDisplayAttribute(display, configId, DisplayAttribute::CONFIG_GROUP,
-                                       &config.configGroup));
+        RET_IF_ERR(getDisplayAttribute(display, configId, DisplayAttribute::HEIGHT, &config.height));
+        RET_IF_ERR(getDisplayAttribute(display, configId, DisplayAttribute::VSYNC_PERIOD, &config.vsyncPeriod));
+        RET_IF_ERR(getDisplayAttribute(display, configId, DisplayAttribute::CONFIG_GROUP, &config.configGroup));
         // Get optional display attributes
         int32_t dpiX, dpiY;
         auto statusDpiX = getDisplayAttribute(display, configId, DisplayAttribute::DPI_X, &dpiX);
@@ -1019,20 +1015,13 @@ int32_t HalImpl::validateDisplay(int64_t display, std::vector<int64_t>* outChang
     return HWC2_ERROR_NONE;
 }
 
-int HalImpl::setExpectedPresentTime([[maybe_unused]] int64_t display,
-                                    const std::optional<ClockMonotonicTimestamp> expectedPresentTime) {
+int HalImpl::setExpectedPresentTime(int64_t display, const std::optional<ClockMonotonicTimestamp> expectedPresentTime) {
+    if (!mDispatch.setExpectedPresentTime) {
+        return HWC2_ERROR_UNSUPPORTED;
+    }
     if (!expectedPresentTime.has_value()) return HWC2_ERROR_NONE;
 
-#if 0
-    /* Drmhwc2 not support this feature */
-    if (halDisplay->getPendingExpectedPresentTime() != 0) {
-        ALOGW("HalImpl: set expected present time multiple times in one frame");
-    }
-
-    halDisplay->setExpectedPresentTime(expectedPresentTime->timestampNanos);
-#endif
-
-    return HWC2_ERROR_NONE;
+    return mDispatch.setExpectedPresentTime(mDevice, display, expectedPresentTime->timestampNanos);
 }
 
 int32_t HalImpl::getRCDLayerSupport([[maybe_unused]] int64_t display, [[maybe_unused]] bool& outSupport) {

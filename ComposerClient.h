@@ -116,13 +116,11 @@ class ComposerClient : public BnComposerClient {
 #ifdef HWC3_V4
     ndk::ScopedAStatus getDisplayConfigurations(int64_t display, int32_t maxFrameIntervalNs,
                                                 std::vector<DisplayConfiguration>* configs) override;
-    ndk::ScopedAStatus notifyExpectedPresent(int64_t display,
-                                             const ClockMonotonicTimestamp& expectedPresentTime,
+    ndk::ScopedAStatus notifyExpectedPresent(int64_t display, const ClockMonotonicTimestamp& expectedPresentTime,
                                              int32_t frameIntervalNs) override;
     ndk::ScopedAStatus getMaxLayerPictureProfiles(int64_t display, int32_t* outMaxProfiles) override;
     ndk::ScopedAStatus startHdcpNegotiation(int64_t display, const drm::HdcpLevels& levels) override;
-    ndk::ScopedAStatus getLuts(int64_t display, const std::vector<Buffer>&,
-                               std::vector<Luts>* outLuts) override;
+    ndk::ScopedAStatus getLuts(int64_t display, const std::vector<Buffer>&, std::vector<Luts>* outLuts) override;
 #endif
   protected:
     ::ndk::SpAIBinder createBinder() override;

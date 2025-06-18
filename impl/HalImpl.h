@@ -21,6 +21,7 @@
 
 #include <hardware/hwcomposer2.h>
 #include <utils/String8.h>
+#include "hwc3/hwc3adapterhwc2.h"
 #include "include/IComposerHal.h"
 
 static constexpr uint32_t DISPLAYID_MASK_LEN = 8;
@@ -165,6 +166,18 @@ class HalImpl : public IComposerHal {
         }
     }
 
+    template <typename T>
+    bool initRkDispatch(hwc2_rk_extension_function_descriptor_t desc, T* outPfn) {
+        auto pfn = mDevice->getFunction(mDevice, desc);
+        if (pfn) {
+            *outPfn = reinterpret_cast<T>(pfn);
+            return true;
+        } else {
+            ALOGW("unsupport hwcomposer2 extension feature function %s", getRkFunctionDescriptorName(desc));
+            return false;
+        }
+    }
+
     virtual bool initDispatch() {
         if (!initDispatch(HWC2_FUNCTION_ACCEPT_DISPLAY_CHANGES, &mDispatch.acceptDisplayChanges) ||
             !initDispatch(HWC2_FUNCTION_CREATE_LAYER, &mDispatch.createLayer) ||
@@ -256,6 +269,11 @@ class HalImpl : public IComposerHal {
         initDispatch(HWC2_FUNCTION_SET_LAYER_GENERIC_METADATA, &mDispatch.setLayerGenericMetadata);
         initDispatch(HWC2_FUNCTION_GET_LAYER_GENERIC_METADATA_KEY, &mDispatch.getLayerGenericMetadataKey);
 
+        // RK Extensions
+        // HWC2_RK_FUNCTION_SET_EXPECTED_PRESENT_TIME 为 RK 拓展的HWC2接口，主要用于适配HWC3版本新增接口
+        // initRkDispatch 为 RK 拓展实现
+        initRkDispatch(HWC2_RK_FUNCTION_SET_EXPECTED_PRESENT_TIME, &mDispatch.setExpectedPresentTime);
+
         return true;
     }
 
@@ -346,6 +364,9 @@ class HalImpl : public IComposerHal {
         HWC2_PFN_GET_CLIENT_TARGET_PROPERTY getClientTargetProperty;
         HWC2_PFN_SET_LAYER_GENERIC_METADATA setLayerGenericMetadata;
         HWC2_PFN_GET_LAYER_GENERIC_METADATA_KEY getLayerGenericMetadataKey;
+
+        // RK Extensions
+        HWC2_PFN_RK_SET_EXPECTED_PRESENT_TIME setExpectedPresentTime;
     } mDispatch = {};
 };
 
