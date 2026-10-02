@@ -1,0 +1,55 @@
+//
+// Copyright (C) 2026 The LineageOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+
+soong_namespace {}
+
+cc_binary {
+    name: "android.hardware.graphics.composer3-service.rk35xx",
+    defaults: ["android.hardware.graphics.composer3-ndk_shared"],
+    vendor: true,
+    relative_install_path: "hw",
+
+    srcs: [
+        "Composer.cpp",
+        "ComposerClient.cpp",
+        "ComposerCommandEngine.cpp",
+        "impl/HalImpl.cpp",
+        "impl/ResourceManager.cpp",
+        "service.cpp",
+    ],
+
+    include_dirs: ["hardware/rockchip/hwcomposer/drmhwc2/include"],
+
+    header_libs: ["android.hardware.graphics.composer3-command-buffer"],
+
+    shared_libs: [
+        "android.hardware.graphics.composer@2.1-resources",
+        "android.hardware.graphics.composer@2.2-resources",
+        "android.hardware.graphics.composer@2.4",
+        "libbase",
+        "libbinder",
+        "libbinder_ndk",
+        "libcutils",
+        "libfmq",
+        "libhardware",
+        "libhardware_legacy",
+        "liblog",
+        "libsync",
+        "libutils",
+    ],
+
+    static_libs: ["libaidlcommonsupport"],
+
+    cflags: [
+        "-DLOG_TAG=\"hwc3\"",
+        "-DHWC2_INCLUDE_STRINGIFICATION",
+        "-DPLATFORM_SDK_VERSION=36",
+        "-DHWC3_V4=1",
+    ],
+
+    init_rc: ["android.hardware.graphics.composer3-service.rk35xx.rc"],
+    vintf_fragments: ["android.hardware.graphics.composer3-service.rk35xx.xml"],
+}
